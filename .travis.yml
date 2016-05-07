@@ -16,6 +16,7 @@ before_script:
 - rethinkdb --port-offset 1 --directory rethinkdb_data1 --join localhost:29016 > /dev/null 2>&1 &
 - rethinkdb --port-offset 2 --directory rethinkdb_data2 --join localhost:29016 > /dev/null 2>&1 &
 - rethinkdb --port-offset 3 --directory rethinkdb_data3 --join localhost:29016 > /dev/null 2>&1 &
+- sed -i 's#, path = "../reql/"##' Cargo.toml
 
 script:
 - cargo test
