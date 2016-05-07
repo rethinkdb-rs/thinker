@@ -1,7 +1,7 @@
 [package]
 name = "thinker"
 description = "RethinkDB driver"
-version = "0.0.0"
+version = "0.0.1"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/rust-rethinkdb/thinker"
 documentation = "http://rust-rethinkdb.github.io/thinker/0.1.x/thinker"
