@@ -11,32 +11,7 @@ use bufstream::BufStream;
 use std::io::BufRead;
 use std::io;
 use r2d2;
-
-/// Options
-#[derive(Debug)]
-pub struct Opts {
-    pub host: &'static str,
-    pub port: u16,
-    pub db: &'static str,
-    pub user: &'static str,
-    pub password: &'static str,
-    pub timeout: u16,
-    pub ssl: Option<String>,
-}
-
-impl Default for Opts {
-    fn default() -> Opts {
-        Opts {
-            host: "localhost",
-            port: 28015,
-            db: "test",
-            user: "admin",
-            password: "",
-            timeout: 20,
-            ssl: None,
-        }
-    }
-}
+use reql::conn::{Opts, Connector};
 
 /// A connection to a RethinkDB database.
 pub struct Connection {
@@ -79,6 +54,22 @@ impl Connection {
             _ => print!("{:?}", "Unable to connect")
         }
 
+    }
+}
+
+impl Connector for Connection {
+    type Connection = Connection;
+    // Close connection
+    fn close(&self, noreply_wait: bool) {}
+
+    // Reconnect
+    fn reconnect(&self, noreply_wait: bool) -> Connection {
+        unimplemented!();
+    }
+
+    // Use database
+    fn use_db(&self, db_name: &str) -> Connection {
+        unimplemented!();
     }
 }
 

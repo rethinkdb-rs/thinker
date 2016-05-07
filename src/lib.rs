@@ -1,8 +1,10 @@
 //! RethinkDB Driver
 //!
 //! ```rust
+//! extern crate reql;
 //! extern crate thinker;
 //!
+//! use reql::R;
 //! use thinker::r;
 //!
 //! # fn main() {
@@ -18,15 +20,16 @@ extern crate bufstream;
 
 pub mod conn;
 
-use conn::{Connection, Opts};
+use conn::Connection;
 
-pub struct Reql;
+pub struct R;
 
 #[allow(non_upper_case_globals)]
-pub const r: Reql = Reql;
+pub const r: R = R;
 
-impl Reql {
-    pub fn connect(&self, opts: Opts) -> Connection {
-        Connection::new(opts)
+impl reql::R for R {
+    type Connection = Connection;
+    fn connect(&self, opts: reql::conn::Opts) -> Self::Connection {
+        conn::Connection::new(opts)
     }
 }
