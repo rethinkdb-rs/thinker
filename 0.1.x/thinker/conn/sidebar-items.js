@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Connection","A connection to a RethinkDB database."]]});

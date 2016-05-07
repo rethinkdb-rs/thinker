@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Term_TermType` enum in crate `ql2`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Term_TermType">
+
+    <title>ql2::proto::Term_TermType - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>ql2</a>::<wbr><a href='index.html'>proto</a></p><script>window.sidebarCurrent = {name: 'Term_TermType', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>ql2</a>::<wbr><a href='index.html'>proto</a>::<wbr><a class='enum' href=''>Term_TermType</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-1947' class='srclink' href='../../src/ql2/proto.rs.html#3263-3442' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum Term_TermType {
+    DATUM,
+    MAKE_ARRAY,
+    MAKE_OBJ,
+    VAR,
+    JAVASCRIPT,
+    UUID,
+    HTTP,
+    ERROR,
+    IMPLICIT_VAR,
+    DB,
+    TABLE,
+    GET,
+    GET_ALL,
+    EQ,
+    NE,
+    LT,
+    LE,
+    GT,
+    GE,
+    NOT,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    FLOOR,
+    CEIL,
+    ROUND,
+    APPEND,
+    PREPEND,
+    DIFFERENCE,
+    SET_INSERT,
+    SET_INTERSECTION,
+    SET_UNION,
+    SET_DIFFERENCE,
+    SLICE,
+    SKIP,
+    LIMIT,
+    OFFSETS_OF,
+    CONTAINS,
+    GET_FIELD,
+    KEYS,
+    VALUES,
+    OBJECT,
+    HAS_FIELDS,
+    WITH_FIELDS,
+    PLUCK,
+    WITHOUT,
+    MERGE,
+    BETWEEN_DEPRECATED,
+    BETWEEN,
+    REDUCE,
+    MAP,
+    FOLD,
+    FILTER,
+    CONCAT_MAP,
+    ORDER_BY,
+    DISTINCT,
+    COUNT,
+    IS_EMPTY,
+    UNION,
+    NTH,
+    BRACKET,
+    INNER_JOIN,
+    OUTER_JOIN,
+    EQ_JOIN,
+    ZIP,
+    RANGE,
+    INSERT_AT,
+    DELETE_AT,
+    CHANGE_AT,
+    SPLICE_AT,
+    COERCE_TO,
+    TYPE_OF,
+    UPDATE,
+    DELETE,
+    REPLACE,
+    INSERT,
+    DB_CREATE,
+    DB_DROP,
+    DB_LIST,
+    TABLE_CREATE,
+    TABLE_DROP,
+    TABLE_LIST,
+    CONFIG,
+    STATUS,
+    WAIT,
+    RECONFIGURE,
+    REBALANCE,
+    SYNC,
+    GRANT,
+    INDEX_CREATE,
+    INDEX_DROP,
+    INDEX_LIST,
+    INDEX_STATUS,
+    INDEX_WAIT,
+    INDEX_RENAME,
+    FUNCALL,
+    BRANCH,
+    OR,
+    AND,
+    FOR_EACH,
+    FUNC,
+    ASC,
+    DESC,
+    INFO,
+    MATCH,
+    UPCASE,
+    DOWNCASE,
+    SAMPLE,
+    DEFAULT,
+    JSON,
+    TO_JSON_STRING,
+    ISO8601,
+    TO_ISO8601,
+    EPOCH_TIME,
+    TO_EPOCH_TIME,
+    NOW,
+    IN_TIMEZONE,
+    DURING,
+    DATE,
+    TIME_OF_DAY,
+    TIMEZONE,
+    YEAR,
+    MONTH,
+    DAY,
+    DAY_OF_WEEK,
+    DAY_OF_YEAR,
+    HOURS,
+    MINUTES,
+    SECONDS,
+    TIME,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+    SUNDAY,
+    JANUARY,
+    FEBRUARY,
+    MARCH,
+    APRIL,
+    MAY,
+    JUNE,
+    JULY,
+    AUGUST,
+    SEPTEMBER,
+    OCTOBER,
+    NOVEMBER,
+    DECEMBER,
+    LITERAL,
+    GROUP,
+    SUM,
+    AVG,
+    MIN,
+    MAX,
+    SPLIT,
+    UNGROUP,
+    RANDOM,
+    CHANGES,
+    ARGS,
+    BINARY,
+    GEOJSON,
+    TO_GEOJSON,
+    POINT,
+    LINE,
+    POLYGON,
+    DISTANCE,
+    INTERSECTS,
+    INCLUDES,
+    CIRCLE,
+    GET_INTERSECTING,
+    FILL,
+    GET_NEAREST,
+    POLYGON_SUB,
+    MINVAL,
+    MAXVAL,
+}</pre><h2 class='variants'>Variants</h2>
+<table class='variants_table'><tr><td id='variant.DATUM'><code>DATUM</code></td><td></td><td></td></tr><tr><td id='variant.MAKE_ARRAY'><code>MAKE_ARRAY</code></td><td></td><td></td></tr><tr><td id='variant.MAKE_OBJ'><code>MAKE_OBJ</code></td><td></td><td></td></tr><tr><td id='variant.VAR'><code>VAR</code></td><td></td><td></td></tr><tr><td id='variant.JAVASCRIPT'><code>JAVASCRIPT</code></td><td></td><td></td></tr><tr><td id='variant.UUID'><code>UUID</code></td><td></td><td></td></tr><tr><td id='variant.HTTP'><code>HTTP</code></td><td></td><td></td></tr><tr><td id='variant.ERROR'><code>ERROR</code></td><td></td><td></td></tr><tr><td id='variant.IMPLICIT_VAR'><code>IMPLICIT_VAR</code></td><td></td><td></td></tr><tr><td id='variant.DB'><code>DB</code></td><td></td><td></td></tr><tr><td id='variant.TABLE'><code>TABLE</code></td><td></td><td></td></tr><tr><td id='variant.GET'><code>GET</code></td><td></td><td></td></tr><tr><td id='variant.GET_ALL'><code>GET_ALL</code></td><td></td><td></td></tr><tr><td id='variant.EQ'><code>EQ</code></td><td></td><td></td></tr><tr><td id='variant.NE'><code>NE</code></td><td></td><td></td></tr><tr><td id='variant.LT'><code>LT</code></td><td></td><td></td></tr><tr><td id='variant.LE'><code>LE</code></td><td></td><td></td></tr><tr><td id='variant.GT'><code>GT</code></td><td></td><td></td></tr><tr><td id='variant.GE'><code>GE</code></td><td></td><td></td></tr><tr><td id='variant.NOT'><code>NOT</code></td><td></td><td></td></tr><tr><td id='variant.ADD'><code>ADD</code></td><td></td><td></td></tr><tr><td id='variant.SUB'><code>SUB</code></td><td></td><td></td></tr><tr><td id='variant.MUL'><code>MUL</code></td><td></td><td></td></tr><tr><td id='variant.DIV'><code>DIV</code></td><td></td><td></td></tr><tr><td id='variant.MOD'><code>MOD</code></td><td></td><td></td></tr><tr><td id='variant.FLOOR'><code>FLOOR</code></td><td></td><td></td></tr><tr><td id='variant.CEIL'><code>CEIL</code></td><td></td><td></td></tr><tr><td id='variant.ROUND'><code>ROUND</code></td><td></td><td></td></tr><tr><td id='variant.APPEND'><code>APPEND</code></td><td></td><td></td></tr><tr><td id='variant.PREPEND'><code>PREPEND</code></td><td></td><td></td></tr><tr><td id='variant.DIFFERENCE'><code>DIFFERENCE</code></td><td></td><td></td></tr><tr><td id='variant.SET_INSERT'><code>SET_INSERT</code></td><td></td><td></td></tr><tr><td id='variant.SET_INTERSECTION'><code>SET_INTERSECTION</code></td><td></td><td></td></tr><tr><td id='variant.SET_UNION'><code>SET_UNION</code></td><td></td><td></td></tr><tr><td id='variant.SET_DIFFERENCE'><code>SET_DIFFERENCE</code></td><td></td><td></td></tr><tr><td id='variant.SLICE'><code>SLICE</code></td><td></td><td></td></tr><tr><td id='variant.SKIP'><code>SKIP</code></td><td></td><td></td></tr><tr><td id='variant.LIMIT'><code>LIMIT</code></td><td></td><td></td></tr><tr><td id='variant.OFFSETS_OF'><code>OFFSETS_OF</code></td><td></td><td></td></tr><tr><td id='variant.CONTAINS'><code>CONTAINS</code></td><td></td><td></td></tr><tr><td id='variant.GET_FIELD'><code>GET_FIELD</code></td><td></td><td></td></tr><tr><td id='variant.KEYS'><code>KEYS</code></td><td></td><td></td></tr><tr><td id='variant.VALUES'><code>VALUES</code></td><td></td><td></td></tr><tr><td id='variant.OBJECT'><code>OBJECT</code></td><td></td><td></td></tr><tr><td id='variant.HAS_FIELDS'><code>HAS_FIELDS</code></td><td></td><td></td></tr><tr><td id='variant.WITH_FIELDS'><code>WITH_FIELDS</code></td><td></td><td></td></tr><tr><td id='variant.PLUCK'><code>PLUCK</code></td><td></td><td></td></tr><tr><td id='variant.WITHOUT'><code>WITHOUT</code></td><td></td><td></td></tr><tr><td id='variant.MERGE'><code>MERGE</code></td><td></td><td></td></tr><tr><td id='variant.BETWEEN_DEPRECATED'><code>BETWEEN_DEPRECATED</code></td><td></td><td></td></tr><tr><td id='variant.BETWEEN'><code>BETWEEN</code></td><td></td><td></td></tr><tr><td id='variant.REDUCE'><code>REDUCE</code></td><td></td><td></td></tr><tr><td id='variant.MAP'><code>MAP</code></td><td></td><td></td></tr><tr><td id='variant.FOLD'><code>FOLD</code></td><td></td><td></td></tr><tr><td id='variant.FILTER'><code>FILTER</code></td><td></td><td></td></tr><tr><td id='variant.CONCAT_MAP'><code>CONCAT_MAP</code></td><td></td><td></td></tr><tr><td id='variant.ORDER_BY'><code>ORDER_BY</code></td><td></td><td></td></tr><tr><td id='variant.DISTINCT'><code>DISTINCT</code></td><td></td><td></td></tr><tr><td id='variant.COUNT'><code>COUNT</code></td><td></td><td></td></tr><tr><td id='variant.IS_EMPTY'><code>IS_EMPTY</code></td><td></td><td></td></tr><tr><td id='variant.UNION'><code>UNION</code></td><td></td><td></td></tr><tr><td id='variant.NTH'><code>NTH</code></td><td></td><td></td></tr><tr><td id='variant.BRACKET'><code>BRACKET</code></td><td></td><td></td></tr><tr><td id='variant.INNER_JOIN'><code>INNER_JOIN</code></td><td></td><td></td></tr><tr><td id='variant.OUTER_JOIN'><code>OUTER_JOIN</code></td><td></td><td></td></tr><tr><td id='variant.EQ_JOIN'><code>EQ_JOIN</code></td><td></td><td></td></tr><tr><td id='variant.ZIP'><code>ZIP</code></td><td></td><td></td></tr><tr><td id='variant.RANGE'><code>RANGE</code></td><td></td><td></td></tr><tr><td id='variant.INSERT_AT'><code>INSERT_AT</code></td><td></td><td></td></tr><tr><td id='variant.DELETE_AT'><code>DELETE_AT</code></td><td></td><td></td></tr><tr><td id='variant.CHANGE_AT'><code>CHANGE_AT</code></td><td></td><td></td></tr><tr><td id='variant.SPLICE_AT'><code>SPLICE_AT</code></td><td></td><td></td></tr><tr><td id='variant.COERCE_TO'><code>COERCE_TO</code></td><td></td><td></td></tr><tr><td id='variant.TYPE_OF'><code>TYPE_OF</code></td><td></td><td></td></tr><tr><td id='variant.UPDATE'><code>UPDATE</code></td><td></td><td></td></tr><tr><td id='variant.DELETE'><code>DELETE</code></td><td></td><td></td></tr><tr><td id='variant.REPLACE'><code>REPLACE</code></td><td></td><td></td></tr><tr><td id='variant.INSERT'><code>INSERT</code></td><td></td><td></td></tr><tr><td id='variant.DB_CREATE'><code>DB_CREATE</code></td><td></td><td></td></tr><tr><td id='variant.DB_DROP'><code>DB_DROP</code></td><td></td><td></td></tr><tr><td id='variant.DB_LIST'><code>DB_LIST</code></td><td></td><td></td></tr><tr><td id='variant.TABLE_CREATE'><code>TABLE_CREATE</code></td><td></td><td></td></tr><tr><td id='variant.TABLE_DROP'><code>TABLE_DROP</code></td><td></td><td></td></tr><tr><td id='variant.TABLE_LIST'><code>TABLE_LIST</code></td><td></td><td></td></tr><tr><td id='variant.CONFIG'><code>CONFIG</code></td><td></td><td></td></tr><tr><td id='variant.STATUS'><code>STATUS</code></td><td></td><td></td></tr><tr><td id='variant.WAIT'><code>WAIT</code></td><td></td><td></td></tr><tr><td id='variant.RECONFIGURE'><code>RECONFIGURE</code></td><td></td><td></td></tr><tr><td id='variant.REBALANCE'><code>REBALANCE</code></td><td></td><td></td></tr><tr><td id='variant.SYNC'><code>SYNC</code></td><td></td><td></td></tr><tr><td id='variant.GRANT'><code>GRANT</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_CREATE'><code>INDEX_CREATE</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_DROP'><code>INDEX_DROP</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_LIST'><code>INDEX_LIST</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_STATUS'><code>INDEX_STATUS</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_WAIT'><code>INDEX_WAIT</code></td><td></td><td></td></tr><tr><td id='variant.INDEX_RENAME'><code>INDEX_RENAME</code></td><td></td><td></td></tr><tr><td id='variant.FUNCALL'><code>FUNCALL</code></td><td></td><td></td></tr><tr><td id='variant.BRANCH'><code>BRANCH</code></td><td></td><td></td></tr><tr><td id='variant.OR'><code>OR</code></td><td></td><td></td></tr><tr><td id='variant.AND'><code>AND</code></td><td></td><td></td></tr><tr><td id='variant.FOR_EACH'><code>FOR_EACH</code></td><td></td><td></td></tr><tr><td id='variant.FUNC'><code>FUNC</code></td><td></td><td></td></tr><tr><td id='variant.ASC'><code>ASC</code></td><td></td><td></td></tr><tr><td id='variant.DESC'><code>DESC</code></td><td></td><td></td></tr><tr><td id='variant.INFO'><code>INFO</code></td><td></td><td></td></tr><tr><td id='variant.MATCH'><code>MATCH</code></td><td></td><td></td></tr><tr><td id='variant.UPCASE'><code>UPCASE</code></td><td></td><td></td></tr><tr><td id='variant.DOWNCASE'><code>DOWNCASE</code></td><td></td><td></td></tr><tr><td id='variant.SAMPLE'><code>SAMPLE</code></td><td></td><td></td></tr><tr><td id='variant.DEFAULT'><code>DEFAULT</code></td><td></td><td></td></tr><tr><td id='variant.JSON'><code>JSON</code></td><td></td><td></td></tr><tr><td id='variant.TO_JSON_STRING'><code>TO_JSON_STRING</code></td><td></td><td></td></tr><tr><td id='variant.ISO8601'><code>ISO8601</code></td><td></td><td></td></tr><tr><td id='variant.TO_ISO8601'><code>TO_ISO8601</code></td><td></td><td></td></tr><tr><td id='variant.EPOCH_TIME'><code>EPOCH_TIME</code></td><td></td><td></td></tr><tr><td id='variant.TO_EPOCH_TIME'><code>TO_EPOCH_TIME</code></td><td></td><td></td></tr><tr><td id='variant.NOW'><code>NOW</code></td><td></td><td></td></tr><tr><td id='variant.IN_TIMEZONE'><code>IN_TIMEZONE</code></td><td></td><td></td></tr><tr><td id='variant.DURING'><code>DURING</code></td><td></td><td></td></tr><tr><td id='variant.DATE'><code>DATE</code></td><td></td><td></td></tr><tr><td id='variant.TIME_OF_DAY'><code>TIME_OF_DAY</code></td><td></td><td></td></tr><tr><td id='variant.TIMEZONE'><code>TIMEZONE</code></td><td></td><td></td></tr><tr><td id='variant.YEAR'><code>YEAR</code></td><td></td><td></td></tr><tr><td id='variant.MONTH'><code>MONTH</code></td><td></td><td></td></tr><tr><td id='variant.DAY'><code>DAY</code></td><td></td><td></td></tr><tr><td id='variant.DAY_OF_WEEK'><code>DAY_OF_WEEK</code></td><td></td><td></td></tr><tr><td id='variant.DAY_OF_YEAR'><code>DAY_OF_YEAR</code></td><td></td><td></td></tr><tr><td id='variant.HOURS'><code>HOURS</code></td><td></td><td></td></tr><tr><td id='variant.MINUTES'><code>MINUTES</code></td><td></td><td></td></tr><tr><td id='variant.SECONDS'><code>SECONDS</code></td><td></td><td></td></tr><tr><td id='variant.TIME'><code>TIME</code></td><td></td><td></td></tr><tr><td id='variant.MONDAY'><code>MONDAY</code></td><td></td><td></td></tr><tr><td id='variant.TUESDAY'><code>TUESDAY</code></td><td></td><td></td></tr><tr><td id='variant.WEDNESDAY'><code>WEDNESDAY</code></td><td></td><td></td></tr><tr><td id='variant.THURSDAY'><code>THURSDAY</code></td><td></td><td></td></tr><tr><td id='variant.FRIDAY'><code>FRIDAY</code></td><td></td><td></td></tr><tr><td id='variant.SATURDAY'><code>SATURDAY</code></td><td></td><td></td></tr><tr><td id='variant.SUNDAY'><code>SUNDAY</code></td><td></td><td></td></tr><tr><td id='variant.JANUARY'><code>JANUARY</code></td><td></td><td></td></tr><tr><td id='variant.FEBRUARY'><code>FEBRUARY</code></td><td></td><td></td></tr><tr><td id='variant.MARCH'><code>MARCH</code></td><td></td><td></td></tr><tr><td id='variant.APRIL'><code>APRIL</code></td><td></td><td></td></tr><tr><td id='variant.MAY'><code>MAY</code></td><td></td><td></td></tr><tr><td id='variant.JUNE'><code>JUNE</code></td><td></td><td></td></tr><tr><td id='variant.JULY'><code>JULY</code></td><td></td><td></td></tr><tr><td id='variant.AUGUST'><code>AUGUST</code></td><td></td><td></td></tr><tr><td id='variant.SEPTEMBER'><code>SEPTEMBER</code></td><td></td><td></td></tr><tr><td id='variant.OCTOBER'><code>OCTOBER</code></td><td></td><td></td></tr><tr><td id='variant.NOVEMBER'><code>NOVEMBER</code></td><td></td><td></td></tr><tr><td id='variant.DECEMBER'><code>DECEMBER</code></td><td></td><td></td></tr><tr><td id='variant.LITERAL'><code>LITERAL</code></td><td></td><td></td></tr><tr><td id='variant.GROUP'><code>GROUP</code></td><td></td><td></td></tr><tr><td id='variant.SUM'><code>SUM</code></td><td></td><td></td></tr><tr><td id='variant.AVG'><code>AVG</code></td><td></td><td></td></tr><tr><td id='variant.MIN'><code>MIN</code></td><td></td><td></td></tr><tr><td id='variant.MAX'><code>MAX</code></td><td></td><td></td></tr><tr><td id='variant.SPLIT'><code>SPLIT</code></td><td></td><td></td></tr><tr><td id='variant.UNGROUP'><code>UNGROUP</code></td><td></td><td></td></tr><tr><td id='variant.RANDOM'><code>RANDOM</code></td><td></td><td></td></tr><tr><td id='variant.CHANGES'><code>CHANGES</code></td><td></td><td></td></tr><tr><td id='variant.ARGS'><code>ARGS</code></td><td></td><td></td></tr><tr><td id='variant.BINARY'><code>BINARY</code></td><td></td><td></td></tr><tr><td id='variant.GEOJSON'><code>GEOJSON</code></td><td></td><td></td></tr><tr><td id='variant.TO_GEOJSON'><code>TO_GEOJSON</code></td><td></td><td></td></tr><tr><td id='variant.POINT'><code>POINT</code></td><td></td><td></td></tr><tr><td id='variant.LINE'><code>LINE</code></td><td></td><td></td></tr><tr><td id='variant.POLYGON'><code>POLYGON</code></td><td></td><td></td></tr><tr><td id='variant.DISTANCE'><code>DISTANCE</code></td><td></td><td></td></tr><tr><td id='variant.INTERSECTS'><code>INTERSECTS</code></td><td></td><td></td></tr><tr><td id='variant.INCLUDES'><code>INCLUDES</code></td><td></td><td></td></tr><tr><td id='variant.CIRCLE'><code>CIRCLE</code></td><td></td><td></td></tr><tr><td id='variant.GET_INTERSECTING'><code>GET_INTERSECTING</code></td><td></td><td></td></tr><tr><td id='variant.FILL'><code>FILL</code></td><td></td><td></td></tr><tr><td id='variant.GET_NEAREST'><code>GET_NEAREST</code></td><td></td><td></td></tr><tr><td id='variant.POLYGON_SUB'><code>POLYGON_SUB</code></td><td></td><td></td></tr><tr><td id='variant.MINVAL'><code>MINVAL</code></td><td></td><td></td></tr><tr><td id='variant.MAXVAL'><code>MAXVAL</code></td><td></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../../protobuf/core/trait.ProtobufEnum.html' title='protobuf::core::ProtobufEnum'>ProtobufEnum</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'><h4 id='method.value' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.value' class='fnname'>value</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
+<h4 id='method.from_i32' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.from_i32' class='fnname'>from_i32</a>(value: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a>&gt;</code></h4>
+<h4 id='method.values' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.values' class='fnname'>values</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;'static [Self]</a></code></h4>
+<h4 id='method.enum_descriptor_static' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.enum_descriptor_static' class='fnname'>enum_descriptor_static</a>(_: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a>&gt;) -&gt; &amp;'static <a class='struct' href='../../protobuf/reflect/struct.EnumDescriptor.html' title='protobuf::reflect::EnumDescriptor'>EnumDescriptor</a></code></h4>
+<h4 id='method.descriptor' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.descriptor' class='fnname'>descriptor</a>(&amp;self) -&gt; &amp;'static <a class='struct' href='../../protobuf/reflect/struct.EnumValueDescriptor.html' title='protobuf::reflect::EnumValueDescriptor'>EnumValueDescriptor</a></code></h4>
+<h4 id='method.enum_descriptor' class='method'><code>fn <a href='../../protobuf/core/trait.ProtobufEnum.html#method.enum_descriptor' class='fnname'>enum_descriptor</a>(&amp;self) -&gt; &amp;'static <a class='struct' href='../../protobuf/reflect/struct.EnumDescriptor.html' title='protobuf::reflect::EnumDescriptor'>EnumDescriptor</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'></div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'><h4 id='method.hash' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash' class='fnname'>hash</a>&lt;__H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a>&gt;(&amp;self, __arg_0: &amp;mut __H)</code></h4>
+<h4 id='method.hash_slice' class='method'><span class="since">1.3.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>, state: &amp;mut H) <span class='where'>where H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a></span></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../ql2/proto/enum.Term_TermType.html' title='ql2::proto::Term_TermType'>Term_TermType</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "ql2";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
