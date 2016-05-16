@@ -11,7 +11,40 @@ use bufstream::BufStream;
 use std::io::BufRead;
 use std::io;
 use r2d2;
-use reql::conn::{Opts, Connector};
+use reql::*;
+
+/// Options
+#[derive(Debug)]
+pub struct Opts {
+    pub host: &'static str,
+    pub port: u16,
+    pub db: &'static str,
+    pub user: &'static str,
+    pub password: &'static str,
+    pub timeout: u16,
+    pub ssl: Option<SslCfg>,
+}
+
+#[derive(Debug)]
+pub struct SslCfg {
+    pub ca_certs: &'static str,
+}
+
+impl ConnectOpts for Opts {}
+
+impl Default for Opts {
+    fn default() -> Opts {
+        Opts {
+            host: "localhost",
+            port: 28015,
+            db: "test",
+            user: "admin",
+            password: "",
+            timeout: 20,
+            ssl: None,
+        }
+    }
+}
 
 /// A connection to a RethinkDB database.
 pub struct Connection {

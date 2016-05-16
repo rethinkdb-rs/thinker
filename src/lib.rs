@@ -4,11 +4,12 @@
 //! extern crate reql;
 //! extern crate thinker;
 //!
-//! use reql::R;
+//! use reql::*;
 //! use thinker::r;
+//! use thinker::conn::Opts;
 //!
 //! # fn main() {
-//! let mut conn = r.connect(Default::default());
+//! let mut conn = r.connect(Opts::default());
 //! # }
 //! ```
 
@@ -20,16 +21,19 @@ extern crate bufstream;
 
 pub mod conn;
 
+use reql::*;
 use conn::Connection;
 
-pub struct R;
+pub struct Reql;
 
 #[allow(non_upper_case_globals)]
-pub const r: R = R;
+pub const r: Reql = Reql;
 
-impl reql::R for R {
+impl R for Reql {
     type Connection = Connection;
-    fn connect(&self, opts: reql::conn::Opts) -> Self::Connection {
-        conn::Connection::new(opts)
+
+    fn connect<T: ConnectOpts>(&self, opts: T) -> Self::Connection {
+        //conn::Connection::new(opts)
+        unimplemented!();
     }
 }
