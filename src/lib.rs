@@ -6,10 +6,9 @@
 //!
 //! use reql::*;
 //! use thinker::r;
-//! use thinker::conn::Opts;
 //!
 //! # fn main() {
-//! let mut conn = r.connect(Opts::default());
+//! let mut conn = r.connect(ConnectOpts::default());
 //! # }
 //! ```
 
@@ -32,8 +31,7 @@ pub const r: Reql = Reql;
 impl R for Reql {
     type Connection = Connection;
 
-    fn connect<T: ConnectOpts>(&self, opts: T) -> Self::Connection {
-        //conn::Connection::new(opts)
-        unimplemented!();
+    fn connect<T: IntoConnectOpts>(&self, opts: T) -> Self::Connection {
+        conn::Connection::new(opts.into())
     }
 }

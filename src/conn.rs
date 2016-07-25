@@ -13,38 +13,6 @@ use std::io;
 use r2d2;
 use reql::*;
 
-/// Options
-#[derive(Debug)]
-pub struct Opts {
-    pub host: &'static str,
-    pub port: u16,
-    pub db: &'static str,
-    pub user: &'static str,
-    pub password: &'static str,
-    pub timeout: u16,
-    pub ssl: Option<SslCfg>,
-}
-
-#[derive(Debug)]
-pub struct SslCfg {
-    pub ca_certs: &'static str,
-}
-
-impl ConnectOpts for Opts {}
-
-impl Default for Opts {
-    fn default() -> Opts {
-        Opts {
-            host: "localhost",
-            port: 28015,
-            db: "test",
-            user: "admin",
-            password: "",
-            timeout: 20,
-            ssl: None,
-        }
-    }
-}
 
 /// A connection to a RethinkDB database.
 pub struct Connection {
@@ -56,7 +24,7 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn new(opts: Opts) -> Connection {
+    pub fn new(opts: ConnectOpts) -> Connection {
         let stream = TcpStream::connect((opts.host, opts.port)).ok().unwrap();
 
         let mut conn = Connection{
@@ -110,13 +78,13 @@ struct ConnectionManager;
 
 impl r2d2::ManageConnection for ConnectionManager {
     type Connection = Connection;
-    type Error = io::Error;
+    type Error = TimeoutError;
 
-    fn connect(&self) -> Result<Connection, io::Error> {
+    fn connect(&self) -> Result<Connection, TimeoutError> {
         unimplemented!();
     }
 
-    fn is_valid(&self, conn: &mut Connection) -> Result<(), io::Error> {
+    fn is_valid(&self, conn: &mut Connection) -> Result<(), TimeoutError> {
         unimplemented!();
     }
 
