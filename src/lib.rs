@@ -21,7 +21,7 @@ extern crate bufstream;
 pub mod conn;
 
 use reql::*;
-use conn::Connection;
+use conn::{Connection, ConnectionManager};
 
 pub struct Reql;
 
@@ -29,9 +29,15 @@ pub struct Reql;
 pub const r: Reql = Reql;
 
 impl R for Reql {
-    type Connection = Connection;
+    type Connection = r2d2::Pool<ConnectionManager>;
+    type Error = r2d2::InitializationError;
 
-    fn connect<T: IntoConnectOpts>(&self, opts: T) -> Self::Connection {
-        conn::Connection::new(opts.into())
+    fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<Self::Connection, Self::Error> {
+        let config = r2d2::Config::builder()
+            .pool_size(15)
+            .build();
+        let manager = ConnectionManager::new(opts);
+
+        r2d2::Pool::new(config, manager)
     }
 }

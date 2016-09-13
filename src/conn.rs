@@ -13,8 +13,8 @@ use std::io;
 use r2d2;
 use reql::*;
 
-
 /// A connection to a RethinkDB database.
+#[derive(Debug)]
 pub struct Connection {
     pub host : String,
     pub port : u16,
@@ -32,6 +32,7 @@ impl Connection {
             port    : opts.port,
             stream  : stream,
             auth    : "AUTH".to_string(),
+            // @TODO: implement proper token generation
             token   : 1,
         };
 
@@ -74,18 +75,29 @@ impl Connector for Connection {
     }
 }
 
-struct ConnectionManager;
+#[derive(Debug)]
+pub struct ConnectionManager {
+    opts: ConnectOpts,
+}
+
+impl ConnectionManager {
+    pub fn new<T: IntoConnectOpts>(opts: T) -> ConnectionManager {
+        ConnectionManager {
+            opts: opts.into(),
+        }
+    }
+}
 
 impl r2d2::ManageConnection for ConnectionManager {
     type Connection = Connection;
     type Error = TimeoutError;
 
     fn connect(&self) -> Result<Connection, TimeoutError> {
-        unimplemented!();
+        Ok(Connection::new(self.opts.clone()))
     }
 
     fn is_valid(&self, conn: &mut Connection) -> Result<(), TimeoutError> {
-        unimplemented!();
+        Ok(())
     }
 
     fn has_broken(&self, _: &mut Connection) -> bool {
