@@ -3,7 +3,7 @@ language: rust
 rust:
 - nightly
 - beta
-- 1.10.0
+- stable
 
 cache: apt
 
