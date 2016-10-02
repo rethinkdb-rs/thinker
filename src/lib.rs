@@ -8,7 +8,8 @@
 //! use thinker::r;
 //!
 //! # fn main() {
-//! let mut conn = r.connect(ConnectOpts::default());
+//! let pool = r.connect(ConnectOpts::default()).unwrap();
+//! let conn = pool.get().unwrap();
 //! # }
 //! ```
 
@@ -34,7 +35,7 @@ impl R for Reql {
 
     fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<Self::Connection, Self::Error> {
         let config = r2d2::Config::builder()
-            .pool_size(15)
+            .pool_size(5)
             .build();
         let manager = ConnectionManager::new(opts);
 
