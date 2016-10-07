@@ -30,7 +30,7 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub fn new(opts: ConnectOpts) -> Connection {
+    pub fn new(opts: ConnectOpts) -> Result<Connection> {
         let stream = TcpStream::connect((opts.host, opts.port)).ok().unwrap();
 
         let mut conn = Connection{
@@ -43,7 +43,7 @@ impl Connection {
         };
 
         conn.handshake();
-        conn
+        Ok(conn)
     }
 
     fn handshake(&mut self)  {
@@ -100,13 +100,13 @@ impl ConnectionManager {
 
 impl r2d2::ManageConnection for ConnectionManager {
     type Connection = Connection;
-    type Error = TimeoutError;
+    type Error = Error;
 
-    fn connect(&self) -> Result<Connection, TimeoutError> {
-        Ok(Connection::new(self.opts.clone()))
+    fn connect(&self) -> Result<Connection> {
+        Connection::new(self.opts.clone())
     }
 
-    fn is_valid(&self, conn: &mut Connection) -> Result<(), TimeoutError> {
+    fn is_valid(&self, conn: &mut Connection) -> Result<()> {
         Ok(())
     }
 

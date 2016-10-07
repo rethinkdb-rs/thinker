@@ -31,14 +31,14 @@ pub const r: Reql = Reql;
 
 impl R for Reql {
     type Connection = r2d2::Pool<ConnectionManager>;
-    type Error = r2d2::InitializationError;
+    //type Error = r2d2::InitializationError;
 
-    fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<Self::Connection, Self::Error> {
+    fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<Self::Connection> {
         let config = r2d2::Config::builder()
             .pool_size(5)
             .build();
         let manager = ConnectionManager::new(opts);
 
-        r2d2::Pool::new(config, manager)
+        r2d2::Pool::new(config, manager).map_err(|_| Error::Compile(CompileError{}))
     }
 }
