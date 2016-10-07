@@ -16,6 +16,7 @@ use std::io;
 use std::str;
 use r2d2;
 use reql::*;
+use super::r;
 
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
@@ -60,11 +61,11 @@ impl Connection {
         let _ = resp.pop();
 
         if resp.is_empty() {
-            println!("Unable to connect.");
+            debug!(r.logger, "Unable to connect");
         } else {
             let resp = str::from_utf8(&resp).unwrap();
             let info: Info = serde_json::from_str(&resp).unwrap();
-            println!("{:?}", info);
+            debug!(r.logger, "{:?}", info);
         }
     }
 }

@@ -8,14 +8,19 @@ use std::thread;
 
 #[test]
 fn connection_pool_works() {
-    let pool = r.connect(ConnectOpts::default()).unwrap();
+    r.connect(ConnectOpts::default());
 
     let mut children = vec![];
-
     for _ in 0..5 {
-        let pool = pool.clone();
+        let pool = r.pool.clone();
         children.push(thread::spawn(move || {
-            let _ = pool.get().unwrap();
+            let mut pool = pool.lock().unwrap();
+            match *pool {
+                Some(ref p) => { 
+                    let _ = p.get().unwrap();
+                },
+                None => panic!("no connection pool available"),
+            };
         }))
     }
 
