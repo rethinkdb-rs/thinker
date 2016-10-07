@@ -12,7 +12,7 @@ fn connection_pool_works() {
 
     let mut children = vec![];
 
-    for _ in 0..5000 {
+    for _ in 0..5 {
         let pool = pool.clone();
         children.push(thread::spawn(move || {
             let _ = pool.get().unwrap();

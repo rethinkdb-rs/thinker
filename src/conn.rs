@@ -3,6 +3,9 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+extern crate serde;
+extern crate serde_json;
+
 use ql2::proto;
 use std::net::TcpStream;
 use std::io::Write;
@@ -10,8 +13,11 @@ use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian};
 use bufstream::BufStream;
 use std::io::BufRead;
 use std::io;
+use std::str;
 use r2d2;
 use reql::*;
+
+include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 /// A connection to a RethinkDB database.
 #[derive(Debug)]
@@ -46,16 +52,20 @@ impl Connection {
         self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32);
         self.stream.flush();
 
-        let mut recv = Vec::new();
-        let null_s = b"\0"[0];
+        let mut resp = Vec::new();
+        let null_str = b"\0"[0];
         let mut buf = BufStream::new(&self.stream);
-        buf.read_until(null_s, &mut recv);
+        buf.read_until(null_str, &mut resp);
 
-        match recv.pop() {
-            Some(null_s) => print!("{:?}", "OK, foi"),
-            _ => print!("{:?}", "Unable to connect")
+        let _ = resp.pop();
+
+        if resp.is_empty() {
+            println!("Unable to connect.");
+        } else {
+            let resp = str::from_utf8(&resp).unwrap();
+            let info: Info = serde_json::from_str(&resp).unwrap();
+            println!("{:?}", info);
         }
-
     }
 }
 
