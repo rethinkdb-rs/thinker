@@ -29,17 +29,17 @@ pub mod conn;
 
 use reql::*;
 use conn::{Connection, ConnectionManager};
-use std::sync::{Arc, Mutex};
+use std::sync::RwLock;
 use slog::DrainExt;
 
 pub struct Reql {
-    pub pool: Arc<Mutex<Option<r2d2::Pool<ConnectionManager>>>>,
+    pub pool: RwLock<Option<r2d2::Pool<ConnectionManager>>>,
     pub logger: slog::Logger,
 }
 
 lazy_static! {
     pub static ref r: Reql = Reql{
-        pool: Arc::new(Mutex::new(None)),
+        pool: RwLock::new(None),
         logger: slog::Logger::root(slog_term::streamer().full().build().fuse(), o!("version" => env!("CARGO_PKG_VERSION"))),
     };
 }
@@ -61,8 +61,7 @@ impl R for Reql {
         }) {
             Ok(p) => { 
                 debug!(r.logger, "{:?}", p); 
-                let pool = r.pool.clone();
-                let mut pool = pool.lock().unwrap();
+                let mut pool = r.pool.write().unwrap();
                 *pool = Some(p);
                 return Ok(());
             },

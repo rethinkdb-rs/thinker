@@ -11,10 +11,9 @@ fn connection_pool_works() {
     r.connect(ConnectOpts::default());
 
     let mut children = vec![];
-    for _ in 0..5 {
-        let pool = r.pool.clone();
+    for _ in 0..10000 {
         children.push(thread::spawn(move || {
-            let mut pool = pool.lock().unwrap();
+            let pool = r.pool.read().unwrap();
             match *pool {
                 Some(ref p) => { 
                     let _ = p.get().unwrap();
