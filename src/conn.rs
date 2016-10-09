@@ -31,7 +31,7 @@ pub struct Connection {
 
 impl Connection {
     pub fn new(opts: ConnectOpts) -> Result<Connection> {
-        let stream = TcpStream::connect((opts.host, opts.port)).ok().unwrap();
+        let stream = try!(TcpStream::connect((opts.host, opts.port)));
 
         let mut conn = Connection{
             host    : opts.host.to_string(),
