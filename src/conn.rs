@@ -60,6 +60,10 @@ impl Connection {
             return Err(From::from(ConnectionError::Other(msg)));
         } else {
             let resp = try!(str::from_utf8(&resp));
+            // If it's not a JSON object it's an error
+            if !resp.starts_with("{") {
+                return Err(From::from(ConnectionError::Other(resp.to_string())));
+            };
             let info: Info = try!(serde_json::from_str(&resp));
             debug!(r.logger, "{:?}", info);
         };
