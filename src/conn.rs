@@ -42,11 +42,28 @@ impl Connection {
     }
 
     fn handshake(&mut self) -> Result<()> {
+        // Process: When you first open a connection, send the magic number
+        // for the version of the protobuf you're targeting (in the [Version]
+        // enum).  This should **NOT** be sent as a protobuf; just send the
+        // little-endian 32-bit integer over the wire raw.  This number should
+        // only be sent once per connection.
         let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Version::V1_0 as u32));
+        // The magic number shall be followed by an authorization key.  The
+        // first 4 bytes are the length of the key to be sent as a little-endian
+        // 32-bit integer, followed by the key string.  Even if there is no key,
+        // an empty string should be sent (length 0 and no data).
         let _ = try!(self.stream.write_u32::<LittleEndian>(0));
+        // Following the authorization key, the client shall send a magic number
+        // for the communication protocol they want to use (in the [Protocol]
+        // enum).  This shall be a little-endian 32-bit integer.
         let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32));
+        // Send request to server
         let _ = try!(self.stream.flush());
 
+        // The server will then respond with a NULL-terminated string response.
+        // "SUCCESS" indicates that the connection has been accepted. Any other
+        // response indicates an error, and the response string should describe
+        // the error.
         let mut resp = Vec::new();
         let null_str = b"\0"[0];
         let mut buf = BufStream::new(&self.stream);
@@ -62,6 +79,7 @@ impl Connection {
             let resp = try!(str::from_utf8(&resp));
             // If it's not a JSON object it's an error
             if !resp.starts_with("{") {
+                crit!(r.logger, "{}", resp);
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
             };
             let info: Info = try!(serde_json::from_str(&resp));
