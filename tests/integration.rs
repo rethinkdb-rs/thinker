@@ -8,7 +8,7 @@ use std::thread;
 
 #[test]
 fn connection_pool_works() {
-    r.connect(ConnectOpts::default());
+    r.connect(ConnectOpts::default()).unwrap();
 
     let mut children = vec![];
     for _ in 0..10000 {

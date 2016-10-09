@@ -19,10 +19,8 @@ extern crate reql;
 extern crate r2d2;
 extern crate byteorder;
 extern crate bufstream;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate slog;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate slog;
 extern crate slog_term;
 
 pub mod conn;
@@ -32,7 +30,7 @@ use conn::{Connection, ConnectionManager};
 use std::sync::RwLock;
 use slog::DrainExt;
 
-pub struct Reql {
+pub struct Reql{
     pub pool: RwLock<Option<r2d2::Pool<ConnectionManager>>>,
     pub logger: slog::Logger,
 }
@@ -45,29 +43,21 @@ lazy_static! {
 }
 
 impl R for Reql {
-    //type Connection = r2d2::Pool<ConnectionManager>;
-    //type Error = r2d2::InitializationError;
-
+    /// Creates a connection pool
     fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<()> {
-        let config = r2d2::Config::builder()
-            .pool_size(5)
-            .build();
-        debug!(r.logger, "Pool {:?}", config); 
+        info!(r.logger, "Trying to create a connection pool...");
+        // Configure the `r2d2` connection pool
+        let config = r2d2::Config::default();
+        // Create a connection pool
         let manager = ConnectionManager::new(opts);
-
-        match r2d2::Pool::new(config, manager).map_err(|e| {
-            debug!(r.logger, "r2d2::Pool: {}", e);
-            Error::Compile(CompileError{})
-        }) {
-            Ok(p) => { 
-                debug!(r.logger, "{:?}", p); 
-                let mut pool = r.pool.write().unwrap();
-                *pool = Some(p);
-                return Ok(());
-            },
-            Err(e) => {
-                return Err(e)
-            },
-        };
+        let p = try!(r2d2::Pool::new(config, manager));
+        // and save it into `Reql::pool` which is globally acessible from easier access anywhere.
+        let mut pool = try!(r.pool.write().map_err(|err| {
+            let msg = format!("failed to acquire write lock to the connection pool: {}", err);
+            crit!(r.logger, "{}", msg);
+            ConnectionError::PoolWrite(msg)
+        }));
+        *pool = Some(p);
+        Ok(())
     }
 }
