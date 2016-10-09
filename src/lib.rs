@@ -8,7 +8,7 @@
 //! use thinker::r;
 //!
 //! # fn main() {
-//! r.connect(ConnectOpts::default());
+//! r.connect(ConnectOpts::default()).unwrap();
 //! # }
 //! ```
 
@@ -26,7 +26,7 @@ extern crate slog_term;
 pub mod conn;
 
 use reql::*;
-use conn::{Connection, ConnectionManager};
+use conn::ConnectionManager;
 use std::sync::RwLock;
 use slog::DrainExt;
 

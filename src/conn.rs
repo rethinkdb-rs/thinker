@@ -42,30 +42,34 @@ impl Connection {
             token   : 1,
         };
 
-        conn.handshake();
+        let _ = try!(conn.handshake());
         Ok(conn)
     }
 
-    fn handshake(&mut self)  {
-        self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Version::V1_0 as u32);
-        self.stream.write_u32::<LittleEndian>(0);
-        self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32);
-        self.stream.flush();
+    fn handshake(&mut self) -> Result<()> {
+        let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Version::V1_0 as u32));
+        let _ = try!(self.stream.write_u32::<LittleEndian>(0));
+        let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32));
+        let _ = try!(self.stream.flush());
 
         let mut resp = Vec::new();
         let null_str = b"\0"[0];
         let mut buf = BufStream::new(&self.stream);
-        buf.read_until(null_str, &mut resp);
+        let _ = try!(buf.read_until(null_str, &mut resp));
 
         let _ = resp.pop();
 
         if resp.is_empty() {
-            debug!(r.logger, "Unable to connect");
+            let msg = String::from("unable to connect for an unknown reason");
+            crit!(r.logger, "{}", msg);
+            return Err(From::from(ConnectionError::Other(msg)));
         } else {
-            let resp = str::from_utf8(&resp).unwrap();
-            let info: Info = serde_json::from_str(&resp).unwrap();
+            let resp = try!(str::from_utf8(&resp));
+            let info: Info = try!(serde_json::from_str(&resp));
             debug!(r.logger, "{:?}", info);
-        }
+        };
+
+        Ok(())
     }
 }
 
