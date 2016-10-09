@@ -1,11 +1,5 @@
 //! RethinkDB Connection
 
-#![allow(dead_code)]
-#![allow(unused_variables)]
-
-extern crate serde;
-extern crate serde_json;
-
 use ql2::proto;
 use std::net::TcpStream;
 use std::io::Write;
@@ -16,6 +10,7 @@ use std::str;
 use r2d2;
 use reql::*;
 use super::r;
+use super::serde_json;
 
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
@@ -76,15 +71,15 @@ impl Connection {
 impl Connector for Connection {
     type Connection = Connection;
     // Close connection
-    fn close(&self, noreply_wait: bool) {}
+    fn close(&self, _noreply_wait: bool) {}
 
     // Reconnect
-    fn reconnect(&self, noreply_wait: bool) -> Connection {
+    fn reconnect(&self, _noreply_wait: bool) -> Connection {
         unimplemented!();
     }
 
     // Use database
-    fn use_db(&self, db_name: &str) -> Connection {
+    fn use_db(&self, _db_name: &str) -> Connection {
         unimplemented!();
     }
 }
@@ -110,7 +105,7 @@ impl r2d2::ManageConnection for ConnectionManager {
         Connection::new(self.opts.clone())
     }
 
-    fn is_valid(&self, conn: &mut Connection) -> Result<()> {
+    fn is_valid(&self, _conn: &mut Connection) -> Result<()> {
         Ok(())
     }
 

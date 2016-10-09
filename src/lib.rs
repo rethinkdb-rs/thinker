@@ -17,6 +17,8 @@
 extern crate ql2;
 extern crate reql;
 extern crate r2d2;
+extern crate serde;
+extern crate serde_json;
 extern crate byteorder;
 extern crate bufstream;
 #[macro_use] extern crate lazy_static;
@@ -38,7 +40,10 @@ pub struct Reql{
 lazy_static! {
     pub static ref r: Reql = Reql{
         pool: RwLock::new(None),
-        logger: slog::Logger::root(slog_term::streamer().full().build().fuse(), o!("version" => env!("CARGO_PKG_VERSION"))),
+        logger: slog::Logger::root(
+            slog_term::streamer().full().build().fuse(),
+            o!("version" => env!("CARGO_PKG_VERSION"))
+            ),
     };
 }
 
