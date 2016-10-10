@@ -21,7 +21,7 @@ pub struct Connection {
     pub port : u16,
     stream   : TcpStream,
     auth     : String,
-    token    : usize,
+    token    : i64,
 }
 
 impl Connection {
@@ -75,15 +75,28 @@ impl Connection {
             let msg = String::from("unable to connect for an unknown reason");
             crit!(r.logger, "{}", msg);
             return Err(From::from(ConnectionError::Other(msg)));
-        } else {
-            let resp = try!(str::from_utf8(&resp));
-            // If it's not a JSON object it's an error
-            if !resp.starts_with("{") {
-                crit!(r.logger, "{}", resp);
-                return Err(From::from(ConnectionError::Other(resp.to_string())));
+        };
+
+        let resp = try!(str::from_utf8(&resp));
+        // If it's not a JSON object it's an error
+        if !resp.starts_with("{") {
+            crit!(r.logger, "{}", resp);
+            return Err(From::from(ConnectionError::Other(resp.to_string())));
+        };
+        let info: Info = match serde_json::from_str(&resp) {
+            Ok(res) => res,
+            Err(err) => {
+                crit!(r.logger, "{}", err);
+                return Err(From::from(err));
+            },
+        };
+        debug!(r.logger, "{:?}", info);
+
+        if !info.success {
+            match info.error {
+                Some(err) => return Err(From::from(ConnectionError::Other(err))),
+                None => return Err(From::from(ConnectionError::Other(resp.to_string()))),
             };
-            let info: Info = try!(serde_json::from_str(&resp));
-            debug!(r.logger, "{:?}", info);
         };
 
         Ok(())

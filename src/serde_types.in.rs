@@ -1,8 +1,9 @@
-// "{\"max_protocol_version\":0,\"min_protocol_version\":0,\"server_version\":\"2.3.5\",\"success\":true}"
 #[derive(Serialize, Deserialize, Debug)]
 struct Info {
-    max_protocol_version: usize,
-    min_protocol_version: usize,
-    server_version: String,
-    success: bool,
+     success: bool,
+     min_protocol_version: Option<usize>,
+     max_protocol_version: Option<usize>,
+     server_version: Option<String>,
+     error_code: Option<usize>,
+     error: Option<String>,
 }
