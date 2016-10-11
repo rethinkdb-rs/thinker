@@ -13,7 +13,7 @@ fn connection_pool_works() {
     let mut children = vec![];
     for _ in 0..10000 {
         children.push(thread::spawn(move || {
-            let pool = r.pool.read().unwrap();
+            let ref pool = r.config.read().unwrap().pool;
             match *pool {
                 Some(ref p) => { 
                     let _ = p.get().unwrap();

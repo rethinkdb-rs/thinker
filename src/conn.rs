@@ -71,26 +71,27 @@ impl Connection {
 
         let _ = resp.pop();
 
+        let cfg = r.config.read().unwrap();
         if resp.is_empty() {
             let msg = String::from("unable to connect for an unknown reason");
-            crit!(r.logger, "{}", msg);
+            crit!(cfg.logger, "{}", msg);
             return Err(From::from(ConnectionError::Other(msg)));
         };
 
         let resp = try!(str::from_utf8(&resp));
         // If it's not a JSON object it's an error
         if !resp.starts_with("{") {
-            crit!(r.logger, "{}", resp);
+            crit!(cfg.logger, "{}", resp);
             return Err(From::from(ConnectionError::Other(resp.to_string())));
         };
         let info: Info = match serde_json::from_str(&resp) {
             Ok(res) => res,
             Err(err) => {
-                crit!(r.logger, "{}", err);
+                crit!(cfg.logger, "{}", err);
                 return Err(From::from(err));
             },
         };
-        debug!(r.logger, "{:?}", info);
+        debug!(cfg.logger, "{:?}", info);
 
         if !info.success {
             match info.error {
