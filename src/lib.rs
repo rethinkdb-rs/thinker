@@ -39,7 +39,6 @@ pub struct Session{
 
 #[derive(Debug)]
 pub struct SessionConfig{
-    pub pool_cfg: PoolConfig<Connection, Error>,
     pub pool: Option<Pool<ConnectionManager>>,
     pub logger: slog::Logger,
 }
@@ -57,7 +56,6 @@ pub const r: Reql = Reql;
 impl SessionConfig {
     pub fn new() -> SessionConfig {
         SessionConfig{
-            pool_cfg: PoolConfig::default(),
             pool: None,
             logger: slog::Logger::root(
                 slog_term::streamer().full().build().fuse(),
@@ -82,22 +80,8 @@ impl R for Reql {
             info!(cfg.logger, "Trying to create a connection pool...");
         }
         // Otherwise we set it
-        let pool: Pool<ConnectionManager>;
-        {
-            // Create a connection pool
-            /*
-            let cfg = try!(session.config.read().map_err(|err| {
-                let msg = format!("failed to acquire read lock to the session config: {}", err);
-                ConnectionError::PoolRead(msg)
-            }));
-            let pool_cfg = try!(sess_cfg.read().map_err(|err| {
-                let msg = format!("failed to acquire read lock to the session config: {}", err);
-                ConnectionError::PoolRead(msg)
-            }).map(|s| s.pool_cfg));
-            */
-            let manager = ConnectionManager::new(opts);
-            pool = try!(Pool::new(PoolConfig::default(), manager));
-        }
+        let manager = ConnectionManager::new(opts);
+        let pool = try!(Pool::new(PoolConfig::default(), manager));
         let mut cfg = try!(session.config.write().map_err(|err| {
             let msg = format!("failed to acquire write lock to the session config: {}", err);
             ConnectionError::PoolWrite(msg)
