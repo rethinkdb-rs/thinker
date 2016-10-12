@@ -9,7 +9,7 @@ use std::io::BufRead;
 use std::str;
 use r2d2;
 use reql::*;
-use super::r;
+use super::session;
 use super::serde_json;
 
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
@@ -71,7 +71,10 @@ impl Connection {
 
         let _ = resp.pop();
 
-        let cfg = r.config.read().unwrap();
+        let cfg = try!(session.config.read().map_err(|err| {
+            let msg = format!("failed to acquire read lock to the session config: {}", err);
+            ConnectionError::PoolRead(msg)
+        }));
         if resp.is_empty() {
             let msg = String::from("unable to connect for an unknown reason");
             crit!(cfg.logger, "{}", msg);

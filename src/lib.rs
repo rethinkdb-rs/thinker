@@ -28,48 +28,81 @@ extern crate slog_term;
 pub mod conn;
 
 use reql::*;
-use conn::ConnectionManager;
+use conn::{Connection, ConnectionManager};
 use std::sync::RwLock;
 use slog::DrainExt;
+use r2d2::{Pool, Config as PoolConfig};
 
-pub struct Reql{
-    pub config: RwLock<ReqlConfig>,
+pub struct Session{
+    pub config: RwLock<SessionConfig>,
 }
 
 #[derive(Debug)]
-pub struct ReqlConfig{
-    pub pool: Option<r2d2::Pool<ConnectionManager>>,
+pub struct SessionConfig{
+    pub pool_cfg: PoolConfig<Connection, Error>,
+    pub pool: Option<Pool<ConnectionManager>>,
     pub logger: slog::Logger,
 }
 
 lazy_static! {
-    pub static ref r: Reql = Reql{
-        config: RwLock::new(ReqlConfig{
+    pub static ref session: Session = Session{
+        config: RwLock::new(SessionConfig::new()),
+    };
+}
+
+pub struct Reql;
+
+pub const r: Reql = Reql;
+
+impl SessionConfig {
+    pub fn new() -> SessionConfig {
+        SessionConfig{
+            pool_cfg: PoolConfig::default(),
             pool: None,
             logger: slog::Logger::root(
                 slog_term::streamer().full().build().fuse(),
                 o!("version" => env!("CARGO_PKG_VERSION"))
                 ),
-        }),
-    };
+        }
+    }
 }
 
 impl R for Reql {
     /// Creates a connection pool
     fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<()> {
-        if r.config.read().unwrap().pool.is_some() {
-            // Pool is already set
-            return Ok(());
+        // If pool is already set we do nothing
+        {
+            let cfg = try!(session.config.read().map_err(|err| {
+                let msg = format!("failed to acquire read lock to the session config: {}", err);
+                ConnectionError::PoolRead(msg)
+            }));
+            if cfg.pool.is_some() {
+                return Ok(());
+            }
+            info!(cfg.logger, "Trying to create a connection pool...");
         }
-        info!(r.config.read().unwrap().logger, "Trying to create a connection pool...");
-        // Configure the `r2d2` connection pool
-        let config = r2d2::Config::default();
-        // Create a connection pool
-        let manager = ConnectionManager::new(opts);
-        let p = try!(r2d2::Pool::new(config, manager));
-        // and save it into `Reql::pool` which is globally acessible from easier access anywhere.
-        let mut reql = r.config.write().unwrap();
-        reql.pool = Some(p);
+        // Otherwise we set it
+        let pool: Pool<ConnectionManager>;
+        {
+            // Create a connection pool
+            /*
+            let cfg = try!(session.config.read().map_err(|err| {
+                let msg = format!("failed to acquire read lock to the session config: {}", err);
+                ConnectionError::PoolRead(msg)
+            }));
+            let pool_cfg = try!(sess_cfg.read().map_err(|err| {
+                let msg = format!("failed to acquire read lock to the session config: {}", err);
+                ConnectionError::PoolRead(msg)
+            }).map(|s| s.pool_cfg));
+            */
+            let manager = ConnectionManager::new(opts);
+            pool = try!(Pool::new(PoolConfig::default(), manager));
+        }
+        let mut cfg = try!(session.config.write().map_err(|err| {
+            let msg = format!("failed to acquire write lock to the session config: {}", err);
+            ConnectionError::PoolWrite(msg)
+        }));
+        cfg.pool = Some(pool);
         Ok(())
     }
 }
