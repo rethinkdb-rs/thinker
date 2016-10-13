@@ -28,7 +28,7 @@ extern crate slog_term;
 pub mod conn;
 
 use reql::*;
-use conn::{Connection, ConnectionManager};
+use conn::ConnectionManager;
 use std::sync::RwLock;
 use slog::DrainExt;
 use r2d2::{Pool, Config as PoolConfig};
@@ -88,5 +88,41 @@ impl R for Reql {
         }));
         cfg.pool = Some(pool);
         Ok(())
+    }
+}
+
+pub trait Run {
+    fn run(self) -> Self;
+}
+
+impl Run for Result<String> {
+    fn run(self) -> Result<String> {
+        let mut pool_is_empty = false;
+        {
+            let config = try!(session.config.read().map_err(|err| {
+                let msg = format!("failed to acquire read lock to the session config: {}", err);
+                ConnectionError::PoolRead(msg)
+            }));
+            if config.pool.is_none() {
+                pool_is_empty = true;
+            }
+        }
+        // If pool is empty we will use default options
+        if pool_is_empty {
+            try!(r.connect(ConnectOpts::default()));
+        }
+        let ref pool = session.config.read().unwrap().pool;
+        match *pool {
+            Some(ref p) => { 
+                let _ = p.get().unwrap();
+            },
+            None => panic!("no connection pool available"),
+        };
+        /*
+        let ref config = session.config.read().unwrap();
+        let ref pool = config.pool.unwrap();
+        let _conn = try!(pool.get());
+        */
+        Ok(String::from(""))
     }
 }
