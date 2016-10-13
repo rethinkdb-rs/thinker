@@ -114,15 +114,10 @@ impl Run for Result<String> {
         let ref pool = session.config.read().unwrap().pool;
         match *pool {
             Some(ref p) => { 
-                let _ = p.get().unwrap();
+                let _conn = try!(p.get());
             },
-            None => panic!("no connection pool available"),
+            None => unreachable!(),
         };
-        /*
-        let ref config = session.config.read().unwrap();
-        let ref pool = config.pool.unwrap();
-        let _conn = try!(pool.get());
-        */
         Ok(String::from(""))
     }
 }
