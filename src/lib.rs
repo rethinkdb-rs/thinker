@@ -111,7 +111,10 @@ impl Run for Result<String> {
         if pool_is_empty {
             try!(r.connect(ConnectOpts::default()));
         }
-        let ref pool = session.config.read().unwrap().pool;
+        let ref pool = try!(session.config.read().map_err(|err| {
+                let msg = format!("failed to acquire read lock to the session config: {}", err);
+                ConnectionError::PoolRead(msg)
+            })).pool;
         match *pool {
             Some(ref p) => { 
                 let _conn = try!(p.get());
