@@ -8,7 +8,7 @@
 //! use thinker::r;
 //!
 //! # fn main() {
-//! r.connect(ConnectOpts::default()).unwrap();
+//! //r.connect(ConnectOpts::default()).unwrap();
 //! # }
 //! ```
 
@@ -36,6 +36,12 @@ use slog::DrainExt;
 use r2d2::{Pool, Config as PoolConfig};
 use ql2::proto;
 use protobuf::repeated::RepeatedField;
+use protobuf::Message;
+use std::io::Write;
+use byteorder::{WriteBytesExt, LittleEndian};
+use bufstream::BufStream;
+use std::io::BufRead;
+use std::str;
 
 pub struct Session{
     pub config: RwLock<SessionConfig>,
@@ -98,7 +104,33 @@ impl R for Reql {
 pub struct RootTerm(Result<proto::Term>);
 
 impl Reql {
+    pub fn db(&self, name: &str) -> RootTerm {
+        // Datum
+        let mut datum = proto::Datum::new();
+        datum.set_field_type(proto::Datum_DatumType::R_STR);
+        datum.set_r_str(name.to_string());
+        // Args
+        let mut args = proto::Term::new();
+        args.set_field_type(proto::Term_TermType::DATUM);
+        args.set_datum(datum);
+        // DB
+        let mut db = proto::Term::new();
+        db.set_field_type(proto::Term_TermType::DB);
+        db.set_args(RepeatedField::from_vec(vec![args]));
+        RootTerm(Ok(db))
+    }
+
     pub fn table(&self, name: &str) -> RootTerm {
+        r.db("test").table(name)
+    }
+}
+
+impl RootTerm {
+    pub fn table(self, name: &str) -> RootTerm {
+        let term = match self.0 {
+            Ok(t) => t,
+            Err(e) => return RootTerm(Err(e)),
+        };
         // Datum
         let mut datum = proto::Datum::new();
         datum.set_field_type(proto::Datum_DatumType::R_STR);
@@ -110,13 +142,12 @@ impl Reql {
         // Table
         let mut table = proto::Term::new();
         table.set_field_type(proto::Term_TermType::TABLE);
-        table.set_args(RepeatedField::from_vec(vec![args]));
+        table.set_args(RepeatedField::from_vec(vec![term, args]));
         RootTerm(Ok(table))
     }
-}
 
-impl RootTerm {
     pub fn run(self) -> Result<String> {
+        let term = try!(self.0);
         let mut pool_is_empty = false;
         {
             let config = try!(session.config.read().map_err(|err| {
@@ -136,7 +167,22 @@ impl RootTerm {
             ConnectionError::PoolRead(msg)
         })).pool;
         if let Some(ref p) = *pool {
-            let _conn = try!(p.get());
+            let mut q = proto::Query::new();
+            q.set_query(term);
+            q.set_field_type(proto::Query_QueryType::START);
+            //q.set_token(2909);
+            let query = try!(q.write_to_bytes());
+            let mut conn = try!(p.get());
+            let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
+            let _ = try!(conn.stream.write_all(&query[..]));
+            //let _ = try!(conn.stream.flush());
+            let mut resp = Vec::new();
+            let null_str = b"\0"[0];
+            let mut buf = BufStream::new(&conn.stream);
+            let _ = try!(buf.read_until(null_str, &mut resp));
+
+            let resp = try!(str::from_utf8(&query));
+            println!("response is {:?}", resp);
         };
         Ok(String::new())
     }

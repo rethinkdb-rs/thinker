@@ -2,7 +2,7 @@
 
 use ql2::proto;
 use std::net::TcpStream;
-use std::io::Write;
+//use std::io::Write;
 use byteorder::{WriteBytesExt, LittleEndian};
 use bufstream::BufStream;
 use std::io::BufRead;
@@ -20,24 +20,13 @@ use std::io::Read;
 /// A connection to a RethinkDB database.
 #[derive(Debug)]
 pub struct Connection {
-    pub host : String,
-    pub port : u16,
-    stream   : TcpStream,
-    auth     : String,
-    token    : u64,
+    pub stream   : TcpStream,
 }
 
 impl Connection {
     pub fn new(opts: ConnectOpts) -> Result<Connection> {
-        let stream = try!(TcpStream::connect((opts.host, opts.port)));
-
         let mut conn = Connection{
-            host    : opts.host.to_string(),
-            port    : opts.port,
-            stream  : stream,
-            auth    : "AUTH".to_string(),
-            // @TODO: implement proper token generation
-            token   : 1,
+            stream  : try!(TcpStream::connect((opts.host, opts.port))),
         };
 
         let _ = try!(conn.handshake());
@@ -61,7 +50,7 @@ impl Connection {
         // enum).  This shall be a little-endian 32-bit integer.
         let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32));
         // Send request to server
-        let _ = try!(self.stream.flush());
+        //let _ = try!(self.stream.flush());
 
         // The server will then respond with a NULL-terminated string response.
         // "SUCCESS" indicates that the connection has been accepted. Any other
