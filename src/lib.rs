@@ -24,6 +24,7 @@ extern crate bufstream;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate slog;
 extern crate slog_term;
+extern crate protobuf;
 
 pub mod conn;
 pub mod types;
@@ -33,6 +34,8 @@ use conn::ConnectionManager;
 use std::sync::RwLock;
 use slog::DrainExt;
 use r2d2::{Pool, Config as PoolConfig};
+use ql2::proto;
+use protobuf::repeated::RepeatedField;
 
 pub struct Session{
     pub config: RwLock<SessionConfig>,
@@ -92,16 +95,28 @@ impl R for Reql {
     }
 }
 
-fn table(name: &str) -> Result<()> {
-    Ok(())
+pub struct RootTerm(Result<proto::Term>);
+
+impl Reql {
+    pub fn table(&self, name: &str) -> RootTerm {
+        // Datum
+        let mut datum = proto::Datum::new();
+        datum.set_field_type(proto::Datum_DatumType::R_STR);
+        datum.set_r_str(name.to_string());
+        // Args
+        let mut args = proto::Term::new();
+        args.set_field_type(proto::Term_TermType::DATUM);
+        args.set_datum(datum);
+        // Table
+        let mut table = proto::Term::new();
+        table.set_field_type(proto::Term_TermType::TABLE);
+        table.set_args(RepeatedField::from_vec(vec![args]));
+        RootTerm(Ok(table))
+    }
 }
 
-pub trait Run {
-    fn run(self) -> Self;
-}
-
-impl Run for Result<String> {
-    fn run(self) -> Result<String> {
+impl RootTerm {
+    pub fn run(self) -> Result<String> {
         let mut pool_is_empty = false;
         {
             let config = try!(session.config.read().map_err(|err| {
@@ -117,15 +132,12 @@ impl Run for Result<String> {
             try!(r.connect(ConnectOpts::default()));
         }
         let ref pool = try!(session.config.read().map_err(|err| {
-                let msg = format!("failed to acquire read lock to the session config: {}", err);
-                ConnectionError::PoolRead(msg)
-            })).pool;
-        match *pool {
-            Some(ref p) => { 
-                let _conn = try!(p.get());
-            },
-            None => unreachable!(),
+            let msg = format!("failed to acquire read lock to the session config: {}", err);
+            ConnectionError::PoolRead(msg)
+        })).pool;
+        if let Some(ref p) = *pool {
+            let _conn = try!(p.get());
         };
-        Ok(String::from(""))
+        Ok(String::new())
     }
 }

@@ -3,7 +3,6 @@ extern crate thinker;
 
 use reql::*;
 use thinker::r;
-use thinker::session;
 
 use std::thread;
 
@@ -14,13 +13,7 @@ fn connection_pool_works() {
     let mut children = vec![];
     for _ in 0..10000 {
         children.push(thread::spawn(move || {
-            let ref pool = session.config.read().unwrap().pool;
-            match *pool {
-                Some(ref p) => { 
-                    let _ = p.get().unwrap();
-                },
-                None => panic!("no connection pool available"),
-            };
+            let _ = r.table("users").run();
         }))
     }
 

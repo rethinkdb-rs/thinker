@@ -12,6 +12,10 @@ use reql::*;
 use super::{session};
 use super::serde_json;
 use super::types::Info;
+/*
+use protobuf::core::Message;
+use std::io::Read;
+*/
 
 /// A connection to a RethinkDB database.
 #[derive(Debug)]
@@ -67,6 +71,10 @@ impl Connection {
         let null_str = b"\0"[0];
         let mut buf = BufStream::new(&self.stream);
         let _ = try!(buf.read_until(null_str, &mut resp));
+        ////////////////////////////////////
+        //let response = proto::Response::new().merge_from_bytes(&self.stream.bytes());
+        //println!("{:?}", response);
+        ////////////////////////////////////
 
         let _ = resp.pop();
 
