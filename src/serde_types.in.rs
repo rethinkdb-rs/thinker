@@ -1,21 +1,27 @@
-#[derive(Serialize, Deserialize, Debug)]
-struct Info {
-     success: bool,
-     min_protocol_version: Option<usize>,
-     max_protocol_version: Option<usize>,
-     server_version: Option<String>,
-     error_code: Option<usize>,
-     error: Option<String>,
-}
+//use std::collections::HashMap;
+//use super::reql::Error;
+//use super::ql2::proto;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Term {
-    name: String,
-    raw_query: bool,
-    root_term: bool,
-    term_type: Term_TermType,
-    data: ReqlData,
-    args: Vec<Term>,
-    opt_args: HashMap,
-    last_err: Error,
+pub struct Info {
+     pub success: bool,
+     pub min_protocol_version: Option<usize>,
+     pub max_protocol_version: Option<usize>,
+     pub server_version: Option<String>,
+     pub error_code: Option<usize>,
+     pub error: Option<String>,
 }
+
+/*
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Term {
+    pub name: String,
+    pub raw_query: bool,
+    pub root_term: bool,
+    pub term_type: proto::Term_TermType,
+    pub data: String,
+    pub args: Vec<Term>,
+    pub opt_args: HashMap<String, String>,
+    pub last_err: Error,
+}
+*/

@@ -26,6 +26,7 @@ extern crate bufstream;
 extern crate slog_term;
 
 pub mod conn;
+pub mod types;
 
 use reql::*;
 use conn::ConnectionManager;
@@ -89,6 +90,10 @@ impl R for Reql {
         cfg.pool = Some(pool);
         Ok(())
     }
+}
+
+fn table(name: &str) -> Result<()> {
+    Ok(())
 }
 
 pub trait Run {

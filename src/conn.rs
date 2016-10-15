@@ -9,10 +9,9 @@ use std::io::BufRead;
 use std::str;
 use r2d2;
 use reql::*;
-use super::session;
+use super::{session};
 use super::serde_json;
-
-include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
+use super::types::Info;
 
 /// A connection to a RethinkDB database.
 #[derive(Debug)]
@@ -21,7 +20,7 @@ pub struct Connection {
     pub port : u16,
     stream   : TcpStream,
     auth     : String,
-    token    : i64,
+    token    : u64,
 }
 
 impl Connection {
