@@ -22,12 +22,14 @@ use scram::ClientFirst;
 #[derive(Debug)]
 pub struct Connection {
     pub stream   : TcpStream,
+    pub token : u64,
 }
 
 impl Connection {
     pub fn new(opts: ConnectOpts) -> Result<Connection> {
         let mut conn = Connection{
             stream  : try!(TcpStream::connect((opts.host, opts.port))),
+            token: 0,
         };
 
         let _ = try!(conn.handshake(&opts));
@@ -76,7 +78,6 @@ impl Connection {
                     return Err(From::from(err));
                 },
             };
-            debug!(cfg.logger, "{:?}", info);
 
             if !info.success {
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
@@ -114,10 +115,6 @@ impl Connection {
             let mut resp = Vec::new();
             let mut buf = BufStream::new(&self.stream);
             let _ = try!(buf.read_until(null_str, &mut resp));
-            ////////////////////////////////////
-            //let response = proto::Response::new().merge_from_bytes(&self.stream.bytes());
-            //println!("{:?}", response);
-            ////////////////////////////////////
 
             let _ = resp.pop();
 
@@ -140,7 +137,6 @@ impl Connection {
                     return Err(From::from(err));
                 },
             };
-            debug!(cfg.logger, "{:?}", info);
 
             if !info.success {
                 let mut err = resp.to_string();
@@ -175,10 +171,6 @@ impl Connection {
             let mut resp = Vec::new();
             let mut buf = BufStream::new(&self.stream);
             let _ = try!(buf.read_until(null_str, &mut resp));
-            ////////////////////////////////////
-            //let response = proto::Response::new().merge_from_bytes(&self.stream.bytes());
-            //println!("{:?}", response);
-            ////////////////////////////////////
 
             let _ = resp.pop();
 
@@ -201,7 +193,6 @@ impl Connection {
                     return Err(From::from(err));
                 },
             };
-            debug!(cfg.logger, "{:?}", info);
 
             if !info.success {
                 let mut err = resp.to_string();
@@ -219,13 +210,7 @@ impl Connection {
                 let _ = scram.handle_server_final(&auth).unwrap();
             }
         }
-        // Following the authorization key, the client shall send a magic number
-        // for the communication protocol they want to use (in the [Protocol]
-        // enum).  This shall be a little-endian 32-bit integer.
-        //let _ = try!(self.stream.write_u32::<LittleEndian>(proto::VersionDummy_Protocol::JSON as u32));
-        // Send request to server
-        //let _ = try!(self.stream.flush());
-
+        let _ = try!(self.stream.flush());
 
         Ok(())
     }

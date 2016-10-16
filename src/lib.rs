@@ -42,6 +42,7 @@ use std::io::Write;
 use byteorder::{WriteBytesExt, LittleEndian};
 use bufstream::BufStream;
 use std::io::BufRead;
+use std::io::Read;
 use std::str;
 
 pub struct Session{
@@ -168,22 +169,23 @@ impl RootTerm {
             ConnectionError::PoolRead(msg)
         })).pool;
         if let Some(ref p) = *pool {
-            let mut q = proto::Query::new();
-            q.set_query(term);
-            q.set_field_type(proto::Query_QueryType::START);
-            //q.set_token(2909);
-            let query = try!(q.write_to_bytes());
+            println!("{:?}", term);
             let mut conn = try!(p.get());
-            let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
-            let _ = try!(conn.stream.write_all(&query[..]));
+            conn.token += 1;
+            //let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
+            //let _ = try!(conn.stream.write_all(&query[..]));
             //let _ = try!(conn.stream.flush());
-            let mut resp = Vec::new();
-            let null_str = b"\0"[0];
-            let mut buf = BufStream::new(&conn.stream);
-            let _ = try!(buf.read_until(null_str, &mut resp));
-
-            let resp = try!(str::from_utf8(&query));
+            //let mut resp = Vec::new();
+            //conn.stream.read_to_end(&mut resp);
+            //let mut response = proto::Response::new();
+            //response.merge_from_bytes(&resp[..]);
+            //let null_str = b"\0"[0];
+            //let mut buf = BufStream::new(&conn.stream);
+            /*
+            let mut resp = String::new();
+            conn.stream.read_to_string(&mut resp);
             println!("response is {:?}", resp);
+            */
         };
         Ok(String::new())
     }

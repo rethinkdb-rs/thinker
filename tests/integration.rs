@@ -1,12 +1,12 @@
-//extern crate reql;
+extern crate reql;
 extern crate thinker;
 
-//use reql::*;
+use reql::*;
 use thinker::r;
 
 #[test]
 fn connection_pool_works() {
-    //r.connect(ConnectOpts::default()).unwrap();
+    r.connect(ConnectOpts::default()).unwrap();
     let _ = r.table("users").run().unwrap();
 
     /*
