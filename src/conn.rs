@@ -11,7 +11,7 @@ use r2d2;
 use reql::*;
 use super::{session};
 use super::serde_json;
-use super::types::Info;
+use super::types::ServerInfo;
 /*
 use protobuf::core::Message;
 use std::io::Read;
@@ -83,7 +83,7 @@ impl Connection {
             crit!(cfg.logger, "{}", resp);
             return Err(From::from(ConnectionError::Other(resp.to_string())));
         };
-        let info: Info = match serde_json::from_str(&resp) {
+        let info: ServerInfo = match serde_json::from_str(&resp) {
             Ok(res) => res,
             Err(err) => {
                 crit!(cfg.logger, "{}", err);
@@ -93,10 +93,7 @@ impl Connection {
         debug!(cfg.logger, "{:?}", info);
 
         if !info.success {
-            match info.error {
-                Some(err) => return Err(From::from(ConnectionError::Other(err))),
-                None => return Err(From::from(ConnectionError::Other(resp.to_string()))),
-            };
+            return Err(From::from(ConnectionError::Other(resp.to_string())));
         };
 
         Ok(())
