@@ -54,10 +54,6 @@ impl Connection {
             let mut resp = Vec::new();
             let mut buf = BufStream::new(&self.stream);
             let _ = try!(buf.read_until(null_str, &mut resp));
-            ////////////////////////////////////
-            //let response = proto::Response::new().merge_from_bytes(&self.stream.bytes());
-            //println!("{:?}", response);
-            ////////////////////////////////////
 
             let _ = resp.pop();
 
@@ -93,21 +89,21 @@ impl Connection {
             authentication_method: String::from("SCRAM-SHA-256"),
             authentication: format!("n,,n={},r={}", opts.user, nonce),
         };
-        let mut msg = match serde_json::to_string(&ar) {
+        let mut msg = match serde_json::to_vec(&ar) {
             Ok(res) => res,
             Err(err) => {
                 crit!(cfg.logger, "{}", err);
                 return Err(From::from(err));
             },
         };
-        msg.push('\0');
+        msg.push(null_str);
 
         // The magic number shall be followed by an authorization key.  The
         // first 4 bytes are the length of the key to be sent as a little-endian
         // 32-bit integer, followed by the key string.  Even if there is no key,
         // an empty string should be sent (length 0 and no data).
-        //let _ = try!(self.stream.write_u32::<LittleEndian>(msg.len() as u32));
-        let _ = try!(self.stream.write_all(&msg.as_bytes()));
+        let info: AuthResponse;
+        let _ = try!(self.stream.write_all(&msg[..]));
         {
             // The server will then respond with a NULL-terminated string response.
             // "SUCCESS" indicates that the connection has been accepted. Any other
@@ -135,7 +131,7 @@ impl Connection {
                 crit!(cfg.logger, "{}", resp);
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
             };
-            let info: AuthResponse = match serde_json::from_str(&resp) {
+            info  = match serde_json::from_str(&resp) {
                 Ok(res) => res,
                 Err(err) => {
                     crit!(cfg.logger, "{}", err);
@@ -145,7 +141,16 @@ impl Connection {
             debug!(cfg.logger, "{:?}", info);
 
             if !info.success {
-                return Err(From::from(ConnectionError::Other(resp.to_string())));
+                let mut err = resp.to_string();
+                if let Some(e) = info.error {
+                    err = e;
+                }
+                // If error code is between 10 and 20, this is an auth error
+                if let Some(10 ... 20) = info.error_code {
+                    return Err(From::from(DriverError::Auth(err)));
+                } else {
+                    return Err(From::from(ConnectionError::Other(err)));
+                }
             };
         }
         // Following the authorization key, the client shall send a magic number
