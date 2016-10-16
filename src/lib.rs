@@ -25,6 +25,7 @@ extern crate bufstream;
 #[macro_use] extern crate slog;
 extern crate slog_term;
 extern crate protobuf;
+extern crate uuid;
 
 pub mod conn;
 pub mod types;
