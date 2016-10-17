@@ -6,22 +6,25 @@ use thinker::r;
 
 #[test]
 fn connection_pool_works() {
-    //r.connect(ConnectOpts::default()).unwrap();
-    let _ = r.table("users").run().unwrap();
-    //let _ = r.db("blog").table("users").filter(format!("{}", "{\"name\":\"Michel\"}")).run().unwrap();
+    r.connect(ConnectOpts::default()).unwrap();
+    //let _ = r.table("users").run().unwrap();
 
-    /*
     use std::thread;
 
     let mut children = vec![];
-    for _ in 0..100 {
+    for i in 10001..20000 {
         children.push(thread::spawn(move || {
-            let _ = r.db("mufr").table("users").run().unwrap();
+            //let _ = r.db("mufr").table("users").run().unwrap();
+            let _ = r.db("blog").table("users").insert(
+                r.object()
+                .insert("name", format!("User {}", i))
+                .insert("age", i*2)
+                .build()
+                ).run().unwrap();
         }))
     }
 
     for child in children {
         let _ = child.join();
     }
-    */
 }

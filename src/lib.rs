@@ -46,6 +46,7 @@ use std::io::Read;
 use std::str;
 use protobuf::ProtobufEnum;
 use byteorder::ReadBytesExt;
+use std::error::Error as StdError;
 
 pub struct Session{
     pub config: RwLock<SessionConfig>,
@@ -123,6 +124,14 @@ impl Reql {
     pub fn table(&self, name: &str) -> RootCommand {
         r.db("test").table(name)
     }
+
+    pub fn object(&self) -> serde_json::builder::ObjectBuilder {
+        serde_json::builder::ObjectBuilder::new()
+    }
+
+    pub fn array(&self) -> serde_json::builder::ArrayBuilder {
+        serde_json::builder::ArrayBuilder::new()
+    }
 }
 
 impl RootCommand {
@@ -140,15 +149,37 @@ impl RootCommand {
                     )))
     }
 
-    pub fn filter(self, expr: String) -> RootCommand {
+    pub fn insert(self, expr: serde_json::Value) -> RootCommand {
         let commands = match self.0 {
             Ok(t) => t,
             Err(e) => return RootCommand(Err(e)),
         };
+        let data = match serde_json::to_string(&expr) {
+            Ok(f) => f,
+            Err(e) => return RootCommand(Err(From::from(DriverError::Json(e)))),
+        };
+        RootCommand(Ok(
+                Command::wrap(
+                    proto::Term_TermType::INSERT,
+                    data,
+                    None,
+                    Some(commands),
+                    )))
+    }
+
+    pub fn filter(self, expr: serde_json::Value) -> RootCommand {
+        let commands = match self.0 {
+            Ok(t) => t,
+            Err(e) => return RootCommand(Err(e)),
+        };
+        let filter = match serde_json::to_string(&expr) {
+            Ok(f) => f,
+            Err(e) => return RootCommand(Err(From::from(DriverError::Json(e)))),
+        };
         RootCommand(Ok(
                 Command::wrap(
                     proto::Term_TermType::FILTER,
-                    expr,
+                    filter,
                     None,
                     Some(commands),
                     )))
