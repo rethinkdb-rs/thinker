@@ -44,6 +44,8 @@ use bufstream::BufStream;
 use std::io::BufRead;
 use std::io::Read;
 use std::str;
+use protobuf::ProtobufEnum;
+use byteorder::ReadBytesExt;
 
 pub struct Session{
     pub config: RwLock<SessionConfig>,
@@ -103,53 +105,57 @@ impl R for Reql {
     }
 }
 
-pub struct RootTerm(Result<proto::Term>);
+pub struct RootCommand(Result<String>);
+struct Command;
+struct Query;
 
 impl Reql {
-    pub fn db(&self, name: &str) -> RootTerm {
-        // Datum
-        let mut datum = proto::Datum::new();
-        datum.set_field_type(proto::Datum_DatumType::R_STR);
-        datum.set_r_str(name.to_string());
-        // Args
-        let mut args = proto::Term::new();
-        args.set_field_type(proto::Term_TermType::DATUM);
-        args.set_datum(datum);
-        // DB
-        let mut db = proto::Term::new();
-        db.set_field_type(proto::Term_TermType::DB);
-        db.set_args(RepeatedField::from_vec(vec![args]));
-        RootTerm(Ok(db))
+    pub fn db(&self, name: &str) -> RootCommand {
+        RootCommand(Ok(
+                Command::wrap(
+                    proto::Term_TermType::DB,
+                    format!("{:?}", name),
+                    None,
+                    None
+                    )))
     }
 
-    pub fn table(&self, name: &str) -> RootTerm {
+    pub fn table(&self, name: &str) -> RootCommand {
         r.db("test").table(name)
     }
 }
 
-impl RootTerm {
-    pub fn table(self, name: &str) -> RootTerm {
-        let term = match self.0 {
+impl RootCommand {
+    pub fn table(self, name: &str) -> RootCommand {
+        let commands = match self.0 {
             Ok(t) => t,
-            Err(e) => return RootTerm(Err(e)),
+            Err(e) => return RootCommand(Err(e)),
         };
-        // Datum
-        let mut datum = proto::Datum::new();
-        datum.set_field_type(proto::Datum_DatumType::R_STR);
-        datum.set_r_str(name.to_string());
-        // Args
-        let mut args = proto::Term::new();
-        args.set_field_type(proto::Term_TermType::DATUM);
-        args.set_datum(datum);
-        // Table
-        let mut table = proto::Term::new();
-        table.set_field_type(proto::Term_TermType::TABLE);
-        table.set_args(RepeatedField::from_vec(vec![term, args]));
-        RootTerm(Ok(table))
+        RootCommand(Ok(
+                Command::wrap(
+                    proto::Term_TermType::TABLE,
+                    format!("{:?}", name),
+                    None,
+                    Some(commands)
+                    )))
+    }
+
+    pub fn filter(self, expr: String) -> RootCommand {
+        let commands = match self.0 {
+            Ok(t) => t,
+            Err(e) => return RootCommand(Err(e)),
+        };
+        RootCommand(Ok(
+                Command::wrap(
+                    proto::Term_TermType::FILTER,
+                    expr,
+                    None,
+                    Some(commands),
+                    )))
     }
 
     pub fn run(self) -> Result<String> {
-        let term = try!(self.0);
+        let commands = try!(self.0);
         let mut pool_is_empty = false;
         {
             let config = try!(session.config.read().map_err(|err| {
@@ -164,29 +170,65 @@ impl RootTerm {
         if pool_is_empty {
             try!(r.connect(ConnectOpts::default()));
         }
-        let ref pool = try!(session.config.read().map_err(|err| {
+        let ref cfg = try!(session.config.read().map_err(|err| {
             let msg = format!("failed to acquire read lock to the session config: {}", err);
             ConnectionError::PoolRead(msg)
-        })).pool;
-        if let Some(ref p) = *pool {
-            println!("{:?}", term);
+        }));
+        if let Some(ref p) = cfg.pool {
             let mut conn = try!(p.get());
             conn.token += 1;
-            //let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
-            //let _ = try!(conn.stream.write_all(&query[..]));
-            //let _ = try!(conn.stream.flush());
-            //let mut resp = Vec::new();
-            //conn.stream.read_to_end(&mut resp);
-            //let mut response = proto::Response::new();
-            //response.merge_from_bytes(&resp[..]);
-            //let null_str = b"\0"[0];
-            //let mut buf = BufStream::new(&conn.stream);
-            /*
-            let mut resp = String::new();
-            conn.stream.read_to_string(&mut resp);
-            println!("response is {:?}", resp);
-            */
+            let query = Query::wrap(
+                proto::Query_QueryType::START,
+                Some(commands),
+                None);
+            debug!(cfg.logger, "{}", query);
+            let query = query.as_bytes();
+            let token = conn.token;
+            let _ = try!(conn.stream.write_u64::<LittleEndian>(token));
+            let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
+            let _ = try!(conn.stream.write_all(query));
+            let _ = try!(conn.stream.flush());
+
+            let response_token = try!(conn.stream.read_u64::<LittleEndian>());
+            let len = try!(conn.stream.read_u32::<LittleEndian>());
+
+            let mut resp = vec![0u8; len as usize];
+            try!(conn.stream.read_exact(&mut resp));
+            let resp = try!(str::from_utf8(&resp));
+            debug!(cfg.logger, "{}", resp);
         };
         Ok(String::new())
+    }
+}
+
+impl Command {
+    fn wrap(command: proto::Term_TermType, arguments: String, options: Option<String>, commands: Option<String>) -> String {
+        let mut cmds = format!("[{},", command.value());
+        let mut args = String::new();
+        if let Some(commands) = commands {
+            args = format!("{},{}", commands, arguments);
+        } else {
+            args = arguments;
+        }
+        cmds.push_str(format!("[{}]", args).as_str());
+        if let Some(options) = options {
+            cmds.push_str(format!(",{{{}}}", options).as_str());
+        }
+        cmds.push(']');
+        cmds
+    }
+}
+
+impl Query {
+    fn wrap(query_type: proto::Query_QueryType, query: Option<String>, options: Option<String>) -> String {
+        let mut qry = format!("[{}", query_type.value());
+        if let Some(query) = query {
+            qry.push_str(format!(",{}", query).as_str());
+        }
+        if let Some(options) = options {
+            qry.push_str(format!(",{}", options).as_str());
+        }
+        qry.push_str("]");
+        qry
     }
 }

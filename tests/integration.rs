@@ -6,16 +6,17 @@ use thinker::r;
 
 #[test]
 fn connection_pool_works() {
-    r.connect(ConnectOpts::default()).unwrap();
+    //r.connect(ConnectOpts::default()).unwrap();
     let _ = r.table("users").run().unwrap();
+    //let _ = r.db("blog").table("users").filter(format!("{}", "{\"name\":\"Michel\"}")).run().unwrap();
 
     /*
     use std::thread;
 
     let mut children = vec![];
-    for _ in 0..10000 {
+    for _ in 0..100 {
         children.push(thread::spawn(move || {
-            let _ = r.table("users").run().unwrap();
+            let _ = r.db("mufr").table("users").run().unwrap();
         }))
     }
 
