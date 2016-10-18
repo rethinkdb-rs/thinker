@@ -36,17 +36,12 @@ use std::sync::RwLock;
 use slog::DrainExt;
 use r2d2::{Pool, Config as PoolConfig};
 use ql2::proto;
-use protobuf::repeated::RepeatedField;
-use protobuf::Message;
 use std::io::Write;
 use byteorder::{WriteBytesExt, LittleEndian};
-use bufstream::BufStream;
-use std::io::BufRead;
 use std::io::Read;
 use std::str;
 use protobuf::ProtobufEnum;
 use byteorder::ReadBytesExt;
-use std::error::Error as StdError;
 
 pub struct Session{
     pub config: RwLock<SessionConfig>,
@@ -187,20 +182,6 @@ impl RootCommand {
 
     pub fn run(self) -> Result<String> {
         let commands = try!(self.0);
-        let mut pool_is_empty = false;
-        {
-            let config = try!(session.config.read().map_err(|err| {
-                let msg = format!("failed to acquire read lock to the session config: {}", err);
-                ConnectionError::PoolRead(msg)
-            }));
-            if config.pool.is_none() {
-                pool_is_empty = true;
-            }
-        }
-        // If pool is empty we will use default options
-        if pool_is_empty {
-            try!(r.connect(ConnectOpts::default()));
-        }
         let ref cfg = try!(session.config.read().map_err(|err| {
             let msg = format!("failed to acquire read lock to the session config: {}", err);
             ConnectionError::PoolRead(msg)
@@ -220,14 +201,24 @@ impl RootCommand {
             let _ = try!(conn.stream.write_all(query));
             let _ = try!(conn.stream.flush());
 
+            // @TODO This might read the token making it unavailable for
+            // subsequent reads...
             let response_token = try!(conn.stream.read_u64::<LittleEndian>());
-            let len = try!(conn.stream.read_u32::<LittleEndian>());
+            if response_token == token {
+                let len = try!(conn.stream.read_u32::<LittleEndian>());
 
-            let mut resp = vec![0u8; len as usize];
-            try!(conn.stream.read_exact(&mut resp));
-            let resp = try!(str::from_utf8(&resp));
-            debug!(cfg.logger, "{}", resp);
-        };
+                let mut resp = vec![0u8; len as usize];
+                try!(conn.stream.read_exact(&mut resp));
+                let resp = try!(str::from_utf8(&resp));
+                debug!(cfg.logger, "{}", resp);
+            }
+        } else {
+            let msg = String::from("Your connection pool is not initialised. \
+                                   Use `r.connection().connect()` to initialise the pool \
+                                   before trying to send any connections to the database. \
+                                   This is typically done in the `main` function.");
+            return Err(From::from(ConnectionError::Other(msg)));
+        }
         Ok(String::new())
     }
 }
@@ -235,7 +226,7 @@ impl RootCommand {
 impl Command {
     fn wrap(command: proto::Term_TermType, arguments: String, options: Option<String>, commands: Option<String>) -> String {
         let mut cmds = format!("[{},", command.value());
-        let mut args = String::new();
+        let args: String;
         if let Some(commands) = commands {
             args = format!("{},{}", commands, arguments);
         } else {
