@@ -9,14 +9,10 @@ use std::io::BufRead;
 use std::str;
 use r2d2;
 use reql::*;
-use super::{session};
+use super::session::Client;
 use super::serde_json;
 use super::types::{ServerInfo, AuthRequest, AuthResponse, AuthConfirmation};
 use scram::ClientFirst;
-/*
-   use protobuf::core::Message;
-   use std::io::Read;
-   */
 
 /// A connection to a RethinkDB database.
 #[derive(Debug)]
@@ -37,10 +33,7 @@ impl Connection {
     }
 
     fn handshake(&mut self, opts: &ConnectOpts) -> Result<()> {
-        let cfg = try!(session.config.read().map_err(|err| {
-            let msg = format!("failed to acquire read lock to the session config: {}", err);
-            ConnectionError::PoolRead(msg)
-        }));
+        let logger = try!(Client::logger().read());
         let null_str = b"\0"[0];
         // Process: When you first open a connection, send the magic number
         // for the version of the protobuf you're targeting (in the [Version]
@@ -61,20 +54,20 @@ impl Connection {
 
             if resp.is_empty() {
                 let msg = String::from("unable to connect for an unknown reason");
-                crit!(cfg.logger, "{}", msg);
+                crit!(logger, "{}", msg);
                 return Err(From::from(ConnectionError::Other(msg)));
             };
 
             let resp = try!(str::from_utf8(&resp));
             // If it's not a JSON object it's an error
             if !resp.starts_with("{") {
-                crit!(cfg.logger, "{}", resp);
+                crit!(logger, "{}", resp);
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
             };
             let info: ServerInfo = match serde_json::from_str(&resp) {
                 Ok(res) => res,
                 Err(err) => {
-                    crit!(cfg.logger, "{}", err);
+                    crit!(logger, "{}", err);
                     return Err(From::from(err));
                 },
             };
@@ -95,7 +88,7 @@ impl Connection {
         let mut msg = match serde_json::to_vec(&ar) {
             Ok(res) => res,
             Err(err) => {
-                crit!(cfg.logger, "{}", err);
+                crit!(logger, "{}", err);
                 return Err(From::from(err));
             },
         };
@@ -120,20 +113,20 @@ impl Connection {
 
             if resp.is_empty() {
                 let msg = String::from("unable to connect for an unknown reason");
-                crit!(cfg.logger, "{}", msg);
+                crit!(logger, "{}", msg);
                 return Err(From::from(ConnectionError::Other(msg)));
             };
 
             let resp = try!(str::from_utf8(&resp));
             // If it's not a JSON object it's an error
             if !resp.starts_with("{") {
-                crit!(cfg.logger, "{}", resp);
+                crit!(logger, "{}", resp);
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
             };
             info  = match serde_json::from_str(&resp) {
                 Ok(res) => res,
                 Err(err) => {
-                    crit!(cfg.logger, "{}", err);
+                    crit!(logger, "{}", err);
                     return Err(From::from(err));
                 },
             };
@@ -161,7 +154,7 @@ impl Connection {
             let mut msg = match serde_json::to_vec(&auth) {
                 Ok(res) => res,
                 Err(err) => {
-                    crit!(cfg.logger, "{}", err);
+                    crit!(logger, "{}", err);
                     return Err(From::from(err));
                 },
             };
@@ -176,20 +169,20 @@ impl Connection {
 
             if resp.is_empty() {
                 let msg = String::from("unable to connect for an unknown reason");
-                crit!(cfg.logger, "{}", msg);
+                crit!(logger, "{}", msg);
                 return Err(From::from(ConnectionError::Other(msg)));
             };
 
             let resp = try!(str::from_utf8(&resp));
             // If it's not a JSON object it's an error
             if !resp.starts_with("{") {
-                crit!(cfg.logger, "{}", resp);
+                crit!(logger, "{}", resp);
                 return Err(From::from(ConnectionError::Other(resp.to_string())));
             };
             let info: AuthResponse  = match serde_json::from_str(&resp) {
                 Ok(res) => res,
                 Err(err) => {
-                    crit!(cfg.logger, "{}", err);
+                    crit!(logger, "{}", err);
                     return Err(From::from(err));
                 },
             };

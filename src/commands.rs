@@ -9,41 +9,33 @@ use std::io::Read;
 use std::str;
 use protobuf::ProtobufEnum;
 use byteorder::ReadBytesExt;
-use super::session;
+use super::session::Client;
 use super::r;
-use super::Reql;
 
 pub struct RootCommand(Result<String>);
 struct Command;
 struct Query;
 
-impl R for Reql {
+impl R for Client {
     /// Creates a connection pool
     fn connect<T: IntoConnectOpts>(&self, opts: T) -> Result<()> {
+        let logger = try!(Client::logger().read());
+        trace!(logger, "Calling r.connect()");
         // If pool is already set we do nothing
-        {
-            let cfg = try!(session.config.read().map_err(|err| {
-                let msg = format!("failed to acquire read lock to the session config: {}", err);
-                ConnectionError::PoolRead(msg)
-            }));
-            if cfg.pool.is_some() {
-                return Ok(());
-            }
-            info!(cfg.logger, "Trying to create a connection pool...");
+        if try!(Client::pool().read()).is_some() {
+            info!(logger, "A connection pool is already initialised. We will use that one instead...");
+            return Ok(());
         }
         // Otherwise we set it
         let manager = ConnectionManager::new(opts);
-        let pool = try!(Pool::new(PoolConfig::default(), manager));
-        let mut cfg = try!(session.config.write().map_err(|err| {
-            let msg = format!("failed to acquire write lock to the session config: {}", err);
-            ConnectionError::PoolWrite(msg)
-        }));
-        cfg.pool = Some(pool);
+        let new_pool = try!(Pool::new(PoolConfig::default(), manager));
+        try!(Client::set_pool(new_pool));
+        info!(logger, "A connection pool has been initialised...");
         Ok(())
     }
 }
 
-impl Reql {
+impl Client {
     pub fn db(&self, name: &str) -> RootCommand {
         RootCommand(Ok(
                 Command::wrap(
@@ -119,19 +111,18 @@ impl RootCommand {
     }
 
     pub fn run(self) -> Result<String> {
+        let logger = try!(Client::logger().read());
+        trace!(logger, "Calling r.run()");
         let commands = try!(self.0);
-        let ref cfg = try!(session.config.read().map_err(|err| {
-            let msg = format!("failed to acquire read lock to the session config: {}", err);
-            ConnectionError::PoolRead(msg)
-        }));
-        if let Some(ref p) = cfg.pool {
-            let mut conn = try!(p.get());
+        let pool = try!(Client::pool().read());
+        if let Some(ref pool) = *pool {
+            let mut conn = try!(pool.get());
             conn.token += 1;
             let query = Query::wrap(
                 proto::Query_QueryType::START,
                 Some(commands),
                 None);
-            debug!(cfg.logger, "{}", query);
+            debug!(logger, "{}", query);
             let query = query.as_bytes();
             let token = conn.token;
             let _ = try!(conn.stream.write_u64::<LittleEndian>(token));
@@ -147,7 +138,7 @@ impl RootCommand {
             let mut resp = vec![0u8; len as usize];
             try!(conn.stream.read_exact(&mut resp));
             let resp = try!(str::from_utf8(&resp));
-            debug!(cfg.logger, "{}", resp);
+            debug!(logger, "{}", resp);
         } else {
             let msg = String::from("Your connection pool is not initialised. \
                                    Use `r.connection().connect()` to initialise the pool \
