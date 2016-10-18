@@ -201,17 +201,15 @@ impl RootCommand {
             let _ = try!(conn.stream.write_all(query));
             let _ = try!(conn.stream.flush());
 
-            // @TODO This might read the token making it unavailable for
-            // subsequent reads...
-            let response_token = try!(conn.stream.read_u64::<LittleEndian>());
-            if response_token == token {
-                let len = try!(conn.stream.read_u32::<LittleEndian>());
+            // @TODO use response_token to implement parallel reads and writes?
+            // let response_token = try!(conn.stream.read_u64::<LittleEndian>());
+            let _ = try!(conn.stream.read_u64::<LittleEndian>());
+            let len = try!(conn.stream.read_u32::<LittleEndian>());
 
-                let mut resp = vec![0u8; len as usize];
-                try!(conn.stream.read_exact(&mut resp));
-                let resp = try!(str::from_utf8(&resp));
-                debug!(cfg.logger, "{}", resp);
-            }
+            let mut resp = vec![0u8; len as usize];
+            try!(conn.stream.read_exact(&mut resp));
+            let resp = try!(str::from_utf8(&resp));
+            debug!(cfg.logger, "{}", resp);
         } else {
             let msg = String::from("Your connection pool is not initialised. \
                                    Use `r.connection().connect()` to initialise the pool \
