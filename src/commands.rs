@@ -15,8 +15,8 @@ use super::session::Client;
 use super::r;
 
 pub struct RootCommand(Result<String>);
-struct Command;
-struct Query;
+pub struct Command;
+pub struct Query;
 
 impl R for Client {
     /// Creates a connection pool
@@ -151,7 +151,7 @@ impl RootCommand {
 }
 
 impl Command {
-    fn wrap(command: proto::Term_TermType, arguments: String, options: Option<String>, commands: Option<String>) -> String {
+    pub fn wrap(command: proto::Term_TermType, arguments: String, options: Option<String>, commands: Option<String>) -> String {
         let mut cmds = format!("[{},", command.value());
         let args: String;
         if let Some(commands) = commands {
@@ -169,7 +169,7 @@ impl Command {
 }
 
 impl Query {
-    fn wrap(query_type: proto::Query_QueryType, query: Option<String>, options: Option<String>) -> String {
+    pub fn wrap(query_type: proto::Query_QueryType, query: Option<String>, options: Option<String>) -> String {
         let mut qry = format!("[{}", query_type.value());
         if let Some(query) = query {
             qry.push_str(format!(",{}", query).as_str());
@@ -181,7 +181,7 @@ impl Query {
         qry
     }
 
-    fn write(query: &str, conn: &mut Connection) -> Result<()> {
+    pub fn write(query: &str, conn: &mut Connection) -> Result<()> {
         let query = query.as_bytes();
         let token = conn.token;
         if let Err(error) = conn.stream.write_u64::<LittleEndian>(token) {
@@ -203,7 +203,7 @@ impl Query {
         Ok(())
     }
 
-    fn read(conn: &mut Connection) -> Result<Vec<u8>> {
+    pub fn read(conn: &mut Connection) -> Result<Vec<u8>> {
             // @TODO use response_token to implement parallel reads and writes?
             // let response_token = try!(conn.stream.read_u64::<LittleEndian>());
             let _ = match conn.stream.read_u64::<LittleEndian>() {

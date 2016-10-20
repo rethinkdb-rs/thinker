@@ -9,6 +9,7 @@ use std::io::BufRead;
 use std::str;
 use r2d2;
 use reql::*;
+use commands::Query;
 use super::session::Client;
 use super::serde_json;
 use super::types::{ServerInfo, AuthRequest, AuthResponse, AuthConfirmation};
@@ -250,7 +251,23 @@ impl r2d2::ManageConnection for ConnectionManager {
         Connection::new(self.opts.clone())
     }
 
-    fn is_valid(&self, _conn: &mut Connection) -> Result<()> {
+    fn is_valid(&self, mut conn: &mut Connection) -> Result<()> {
+        let logger = try!(Client::logger().read());
+        conn.token += 1;
+        let query = Query::wrap(
+            proto::Query_QueryType::START,
+            Some(String::from("1")),
+            None);
+        try!(Query::write(&query, &mut conn));
+        let resp = try!(Query::read(&mut conn));
+        let resp = try!(str::from_utf8(&resp));
+        if resp != r#"{"t":1,"r":[1]}"# {
+            warn!(logger, "Got {} from server instead of the expected `is_valid()` response.", resp);
+            return Err(
+                From::from(
+                    ConnectionError::Other(
+                        String::from("Unexpected response from server."))));
+        }
         Ok(())
     }
 
