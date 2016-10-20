@@ -1,4 +1,4 @@
-//! RethinkDB Connection
+//! Primitives for Connecting to RethinkDB Server
 
 use ql2::proto;
 use std::net::TcpStream;
@@ -19,13 +19,17 @@ use scram::ClientFirst;
 pub struct Connection {
     pub stream   : TcpStream,
     pub token : u64,
+    pub broken: bool,
 }
 
 impl Connection {
     pub fn new(opts: ConnectOpts) -> Result<Connection> {
+        let logger = try!(Client::logger().read());
+        trace!(logger, "Calling Connection::new()");
         let mut conn = Connection{
             stream  : try!(TcpStream::connect((opts.host, opts.port))),
             token: 0,
+            broken: false,
         };
 
         let _ = try!(conn.handshake(&opts));
@@ -250,7 +254,14 @@ impl r2d2::ManageConnection for ConnectionManager {
         Ok(())
     }
 
-    fn has_broken(&self, _: &mut Connection) -> bool {
+    fn has_broken(&self, conn: &mut Connection) -> bool {
+        if conn.broken {
+            return true;
+        }
+        match conn.stream.take_error() {
+            Ok(error) => if error.is_some() { return true; },
+            Err(_) => { return true; },
+        }
         false
     }
 }

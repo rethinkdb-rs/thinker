@@ -1,4 +1,4 @@
-//! RethinkDB Driver
+//! Rust RethinkDB Driver
 //!
 //! ```rust
 //! extern crate reql;
@@ -8,7 +8,7 @@
 //! use thinker::r;
 //!
 //! # fn main() {
-//! //r.connect(ConnectOpts::default()).unwrap();
+//! r.connect(ConnectOpts::default()).unwrap();
 //! # }
 //! ```
 

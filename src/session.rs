@@ -1,3 +1,5 @@
+//! Primitives to Configure the Execution Environment
+
 use std::sync::RwLock;
 use slog::{DrainExt, Logger};
 use conn::ConnectionManager;

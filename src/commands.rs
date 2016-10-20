@@ -1,3 +1,5 @@
+//! The Actual RethinkDB Commands
+
 use reql::*;
 use conn::ConnectionManager;
 use r2d2::{Pool, Config as PoolConfig};
@@ -28,7 +30,17 @@ impl R for Client {
         }
         // Otherwise we set it
         let manager = ConnectionManager::new(opts);
-        let new_pool = try!(Pool::new(PoolConfig::default(), manager));
+        let config = PoolConfig::builder()
+            // If we are under load and our pool runs out of connections
+            // we are doomed so we set a very high number of maximum
+            // connections that can be opened
+            .pool_size(1000000)
+            // To counter the high number of open connections we set
+            // a reasonable number of minimum connections we want to
+            // keep when we are idle.
+            .min_idle(Some(10))
+            .build();
+        let new_pool = try!(Pool::new(config, manager));
         try!(Client::set_pool(new_pool));
         info!(logger, "A connection pool has been initialised...");
         Ok(())
@@ -125,18 +137,45 @@ impl RootCommand {
             debug!(logger, "{}", query);
             let query = query.as_bytes();
             let token = conn.token;
-            let _ = try!(conn.stream.write_u64::<LittleEndian>(token));
-            let _ = try!(conn.stream.write_u32::<LittleEndian>(query.len() as u32));
-            let _ = try!(conn.stream.write_all(query));
-            let _ = try!(conn.stream.flush());
+            if let Err(error) = conn.stream.write_u64::<LittleEndian>(token) {
+                conn.broken = true;
+                return Err(From::from(error));
+            }
+            if let Err(error) = conn.stream.write_u32::<LittleEndian>(query.len() as u32) {
+                conn.broken = true;
+                return Err(From::from(error));
+            }
+            if let Err(error) = conn.stream.write_all(query) {
+                conn.broken = true;
+                return Err(From::from(error));
+            }
+            if let Err(error) = conn.stream.flush() {
+                conn.broken = true;
+                return Err(From::from(error));
+            }
 
             // @TODO use response_token to implement parallel reads and writes?
             // let response_token = try!(conn.stream.read_u64::<LittleEndian>());
-            let _ = try!(conn.stream.read_u64::<LittleEndian>());
-            let len = try!(conn.stream.read_u32::<LittleEndian>());
+            let _ = match conn.stream.read_u64::<LittleEndian>() {
+                Ok(token) => token,
+                Err(error) => {
+                    conn.broken = true;
+                    return Err(From::from(error));
+                },
+            };
+            let len = match conn.stream.read_u32::<LittleEndian>() {
+                Ok(len) => len,
+                Err(error) => {
+                    conn.broken = true;
+                    return Err(From::from(error));
+                },
+            };
 
             let mut resp = vec![0u8; len as usize];
-            try!(conn.stream.read_exact(&mut resp));
+            if let Err(error) = conn.stream.read_exact(&mut resp) {
+                    conn.broken = true;
+                    return Err(From::from(error));
+            }
             let resp = try!(str::from_utf8(&resp));
             debug!(logger, "{}", resp);
         } else {
