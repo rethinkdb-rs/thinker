@@ -1,7 +1,7 @@
 //! The Actual RethinkDB Commands
 
 use reql::*;
-use conn::ConnectionManager;
+use conn::{Connection, ConnectionManager};
 use r2d2::{Pool, Config as PoolConfig};
 use serde_json;
 use ql2::proto;
@@ -135,47 +135,8 @@ impl RootCommand {
                 Some(commands),
                 None);
             debug!(logger, "{}", query);
-            let query = query.as_bytes();
-            let token = conn.token;
-            if let Err(error) = conn.stream.write_u64::<LittleEndian>(token) {
-                conn.broken = true;
-                return Err(From::from(error));
-            }
-            if let Err(error) = conn.stream.write_u32::<LittleEndian>(query.len() as u32) {
-                conn.broken = true;
-                return Err(From::from(error));
-            }
-            if let Err(error) = conn.stream.write_all(query) {
-                conn.broken = true;
-                return Err(From::from(error));
-            }
-            if let Err(error) = conn.stream.flush() {
-                conn.broken = true;
-                return Err(From::from(error));
-            }
-
-            // @TODO use response_token to implement parallel reads and writes?
-            // let response_token = try!(conn.stream.read_u64::<LittleEndian>());
-            let _ = match conn.stream.read_u64::<LittleEndian>() {
-                Ok(token) => token,
-                Err(error) => {
-                    conn.broken = true;
-                    return Err(From::from(error));
-                },
-            };
-            let len = match conn.stream.read_u32::<LittleEndian>() {
-                Ok(len) => len,
-                Err(error) => {
-                    conn.broken = true;
-                    return Err(From::from(error));
-                },
-            };
-
-            let mut resp = vec![0u8; len as usize];
-            if let Err(error) = conn.stream.read_exact(&mut resp) {
-                    conn.broken = true;
-                    return Err(From::from(error));
-            }
+            try!(Query::write(&query, &mut conn));
+            let resp = try!(Query::read(&mut conn));
             let resp = try!(str::from_utf8(&resp));
             debug!(logger, "{}", resp);
         } else {
@@ -218,5 +179,52 @@ impl Query {
         }
         qry.push_str("]");
         qry
+    }
+
+    fn write(query: &str, conn: &mut Connection) -> Result<()> {
+        let query = query.as_bytes();
+        let token = conn.token;
+        if let Err(error) = conn.stream.write_u64::<LittleEndian>(token) {
+            conn.broken = true;
+            return Err(From::from(error));
+        }
+        if let Err(error) = conn.stream.write_u32::<LittleEndian>(query.len() as u32) {
+            conn.broken = true;
+            return Err(From::from(error));
+        }
+        if let Err(error) = conn.stream.write_all(query) {
+            conn.broken = true;
+            return Err(From::from(error));
+        }
+        if let Err(error) = conn.stream.flush() {
+            conn.broken = true;
+            return Err(From::from(error));
+        }
+        Ok(())
+    }
+
+    fn read(conn: &mut Connection) -> Result<Vec<u8>> {
+            // @TODO use response_token to implement parallel reads and writes?
+            // let response_token = try!(conn.stream.read_u64::<LittleEndian>());
+            let _ = match conn.stream.read_u64::<LittleEndian>() {
+                Ok(token) => token,
+                Err(error) => {
+                    conn.broken = true;
+                    return Err(From::from(error));
+                },
+            };
+            let len = match conn.stream.read_u32::<LittleEndian>() {
+                Ok(len) => len,
+                Err(error) => {
+                    conn.broken = true;
+                    return Err(From::from(error));
+                },
+            };
+            let mut resp = vec![0u8; len as usize];
+            if let Err(error) = conn.stream.read_exact(&mut resp) {
+                    conn.broken = true;
+                    return Err(From::from(error));
+            }
+            Ok(resp)
     }
 }
