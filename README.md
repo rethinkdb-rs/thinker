@@ -1,6 +1,6 @@
-# RethinkDB Driver
+# Future Home of Some RethinkDB App
 
-This is a [RethinkDB] driver written in [Rust].
+This used to be a [RethinkDB] driver written in [Rust] but it has since been merged with the `reql` crate. Use that crate for the driver.
 
 [RethinkDB]: https://www.rethinkdb.com
 [Rust]: https://www.rust-lang.org
